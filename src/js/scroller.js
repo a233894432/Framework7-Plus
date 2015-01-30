@@ -13,13 +13,13 @@ app.compareVersion = function(a, b) {
     if(x<y) return -1;
   }
   return 1;
-}
+};
 
 //自定义的滚动条
 //
 var Scroller = function(pageContent) {
   var $pageContent = this.$pageContent = $(pageContent);
-  if(app.device.android && app.compareVersion('4.4.0', myApp.device.osVersion)) {
+  if(app.device.android && app.compareVersion('4.4.0', app.device.osVersion)) {
     var ptr = $(pageContent).find('.pull-to-refresh-content')[0];
     var options = {
       probeType: 1,
@@ -31,9 +31,9 @@ var Scroller = function(pageContent) {
     }
     this.scroller = new IScroll(pageContent, options);
   } else {
-    $pageContent.addClass("native-scroll");
+    $pageContent.addClass('native-scroll');
   }
-}
+};
 
 //如果没有传入参数，则返回当前滚动距离
 Scroller.prototype.scrollTop = function(top, dur) {
@@ -46,7 +46,7 @@ Scroller.prototype.scrollTop = function(top, dur) {
   } else {
     return this.$pageContent.scrollTop(top, dur);
   }
-}
+};
 //scroll, scrollEnd, scrollStart
 Scroller.prototype.on = function(event, callback) {
   if(this.scroller) {
@@ -54,11 +54,11 @@ Scroller.prototype.on = function(event, callback) {
   } else {
     this.$pageContent.on(event, callback);
   }
-}
+};
 //刷新滚动条
 Scroller.prototype.refresh = function() {
-  this.scroller && this.scroller.refresh();
-}
+  if(this.scroller)this.scroller.refresh();
+};
 
 app.initScroller = function(pageContent) {
     var $pageContent = $(pageContent);
@@ -71,7 +71,7 @@ app.initScroller = function(pageContent) {
     pageContent.scroller = scroller;
 };
 app.refreshScroller = function(content) { //如果未传入container，则取当前显示的page
-    var $content = $(content || $(myApp.mainView.activePage.container).find('.page-content')[0]);
+    var $content = $(content || $(app.mainView.activePage.container).find('.page-content')[0]);
     if($content[0] && $content[0].scroller) {
         $content[0].scroller.refresh();
     }
@@ -80,6 +80,6 @@ app.getScroller = function(content) {
   if(content) {
     return $(content)[0].scroller;
   } else {
-    return myApp.mainView.activePage.container.children[0].scroller;
+    return $(app.mainView.activePage.container).find('.page-content')[0].scroller;
   }
 };
