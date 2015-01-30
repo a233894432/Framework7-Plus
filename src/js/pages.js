@@ -76,7 +76,7 @@ app.triggerPageCallbacks = function (callbackName, pageName, pageData) {
 app.pageInitCallback = function (view, params) {
     var pageContainer = params.pageContainer;
     if (pageContainer.f7PageInitialized && !view.params.domCache) return;
-    app.initScroller(pageContainer);    //尽早初始化
+    app.initScroller($(pageContainer).find('.page-content')[0]);    //尽早初始化
 
     // Page Data
     var pageData = {
@@ -262,7 +262,7 @@ app.initPage = function (pageContainer) {
     // Init scroll toolbars
     if (app.initScrollToolbars) app.initScrollToolbars(pageContainer);
 
-    app.refreshScroller(pageContainer);
+    app.refreshScroller($(pageContainer).find('.page-content')[0]);
 };
 app.reinitPage = function (pageContainer) {
     // Size navbars on page reinit

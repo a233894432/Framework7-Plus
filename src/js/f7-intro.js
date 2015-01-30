@@ -29,7 +29,7 @@ window.Framework7 = function (params) {
         pushStateSeparator: '#!/',
         // Fast clicks
         fastClicks: true,
-        fastClicksDistanceThreshold: 1,
+        fastClicksDistanceThreshold: 0,
         // Active State
         activeState: true,
         activeStateElements: 'a, button, label, span',

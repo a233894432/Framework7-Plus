@@ -24,7 +24,6 @@ var VirtualList = function (listBlock, params) {
         else if (typeof params.template === 'function') vl.template = params.template;
     }
     vl.pageContent = vl.listBlock.parents('.page-content');
-    vl.page = vl.pageContent.parent();
 
     // Bad scroll
     var updatableScroll;
@@ -68,7 +67,7 @@ var VirtualList = function (listBlock, params) {
         }
         if (typeof resetScrollTop === 'undefined') resetScrollTop = true;
         if (resetScrollTop) {
-            app.scrollTop(vl.page, 0);
+            vl.pageContent[0].scrollTop = 0;
         }
         vl.update();
     };
@@ -105,15 +104,15 @@ var VirtualList = function (listBlock, params) {
 
         if (updatableScroll) {
             vl.ul.css({height: listHeight + 'px'});
-            app.refreshScroller(vl.page);
         }
     };
 
     // Render items
     vl.render = function (force) {
         if (force) vl.lastRepaintY = null;
-        var scrollTop = app.scrollTop(vl.page);
-        if (vl.lastRepaintY === null || Math.abs(scrollTop - vl.lastRepaintY) > maxBufferHeight || (!updatableScroll && (scrollTop + pageHeight >= vl.pageContent[0].scrollHeight))) {
+        // var scrollTop = vl.pageContent[0].scrollTop;
+        var scrollTop = -(vl.listBlock[0].getBoundingClientRect().top + vl.pageContent[0].getBoundingClientRect().top);
+        if (vl.lastRepaintY === null || Math.abs(scrollTop - vl.lastRepaintY) > maxBufferHeight || (!updatableScroll && (vl.pageContent[0].scrollTop + pageHeight >= vl.pageContent[0].scrollHeight))) {
             vl.lastRepaintY = scrollTop;
         }
         else {
@@ -216,7 +215,6 @@ var VirtualList = function (listBlock, params) {
         if (vl.params.onItemsBeforeInsert) vl.params.onItemsBeforeInsert(vl, vl.fragment);
         vl.ul[0].appendChild(vl.fragment);
         if (vl.params.onItemsAfterInsert) vl.params.onFragmentAfterInsert(vl, vl.fragment);
-        app.refreshScroller(vl.page);
     };
 
     // Handle scroll event
@@ -231,7 +229,7 @@ var VirtualList = function (listBlock, params) {
 
     vl.attachEvents = function (detach) {
         var action = detach ? 'off' : 'on';
-        app.getScroller(vl.page)[action]('scroll', vl.handleScroll);
+        vl.pageContent[action]('scroll', vl.handleScroll);
         $(window)[action]('resize', vl.handleResize);
     };
 

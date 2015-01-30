@@ -292,7 +292,7 @@ app.popover = function (modal, target, removeOnClose) {
         var targetOffset = target.offset();
         var targetParentPage = target.parents('.page');
         if (targetParentPage.length > 0) {
-            targetOffset.top = targetOffset.top - targetParentPage[0].scrollTop;   //注意，这里是page的scrollTop，不是pageContent，所以不需要改成scroller
+            targetOffset.top = targetOffset.top - targetParentPage[0].scrollTop;
         }
 
         var windowHeight = $(window).height();
@@ -430,20 +430,11 @@ app.openModal = function (modal) {
     modal.trigger('open');
 
     // Classes for transition in
-    if (!isLoginScreen) {
-      //fix transition flash bug
-      overlay.addClass('modal-overlay-show');
-      setTimeout(function() {
-        overlay.addClass('modal-overlay-visible');
-      }, 100);
-    }
+    if (!isLoginScreen) overlay.addClass('modal-overlay-visible');
     modal.removeClass('modal-out').addClass('modal-in').transitionEnd(function (e) {
         if (modal.hasClass('modal-out')) modal.trigger('closed');
         else modal.trigger('opened');
     });
-
-    var page = modal.find('.page');
-    app.refreshScroller(page);
     return true;
 };
 app.closeModal = function (modal) {
@@ -461,12 +452,10 @@ app.closeModal = function (modal) {
     if (isPopup){
         if (modal.length === $('.popup.modal-in').length) {
             overlay.removeClass('modal-overlay-visible');    
-            overlay.removeClass('modal-overlay-show');
-        }
+        }  
     }
     else {
-        overlay.removeClass('modal-overlay-visible');    
-        overlay.removeClass('modal-overlay-show');
+        overlay.removeClass('modal-overlay-visible');
     }
 
     modal.trigger('close');
@@ -486,14 +475,12 @@ app.closeModal = function (modal) {
                 modal.remove();
             }
         });
-        modal.remove();
     }
     else {
         modal.removeClass('modal-in modal-out').trigger('closed').hide();
         if (removeOnClose) {
             modal.remove();
         }
-        modal.remove();
     }
     return true;
 };

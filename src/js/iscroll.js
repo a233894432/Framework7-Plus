@@ -267,7 +267,7 @@ var utils = (function () {
 
 function IScroll (el, options) {
     this.wrapper = typeof el === 'string' ? document.querySelector(el) : el;
-    this.scroller = $(this.wrapper).find('.page-content')[0] || $(this.wrapper).find('.slider-container')[0];
+    this.scroller = $(this.wrapper).find('.page-content-inner')[0];
     this.scrollerStyle = this.scroller.style;       // cache style for better performance
 
     this.options = {
@@ -2061,61 +2061,3 @@ Indicator.prototype = {
 };
 
 IScroll.utils = utils;
-
-
-app.initScroller = function(pageContainer) {
-    var ptr = $(pageContainer).find('.pull-to-refresh-content')[0];
-    var options = {
-        probeType: 1,
-        mouseWheel: true,
-    };
-    if(ptr) {
-        options.ptr = true;
-        options.ptrOffset = 44;
-    }
-
-    // fix android 4.4.4 webview bug
-    if(app.device.android && app.device.osVersion === '4.4.4') {
-      options.HWCompositing = false;
-      options.useTransform = false;
-    }
-    var scroller = new IScroll(pageContainer, options);
-    pageContainer.scroller = scroller;
-};
-app.refreshScroller = function(container) { //如果未传入container，则取当前显示的page
-    var $container = $(container);
-    if($container[0]) {
-        $container[0].scroller.refresh();
-    } else {
-        app.mainView.refreshScroller();
-    }
-};
-app.getScroller = function(container) {
-  if(container) {
-    return $(container)[0].scroller;
-  } else {
-    return app.mainView.activePage.container.scroller;
-  }
-};
-app.scrollTop = function(element, scrollTop, time) {
-    var $element = $(element);
-    if(scrollTop === undefined) {
-        if($element[0].scroller) {
-            return -1 * $element[0].scroller.getComputedPosition().y;
-        }
-        return $element[0].scrollTop;
-    } else {
-        time = time || 0;
-        if($element[0].scroller) {
-            return $element[0].scroller.scrollTo(0, -1 * scrollTop, time);
-        }
-        $element[0].scrollTop = scrollTop;
-    }
-};
-app.getScrollHeight = function(element) {
-    var $element = $(element);
-    if($element[0].scroller) {
-        return $element[0].scroller.scrollerHeight;
-    }
-    return $element[0].scrollHeight;
-};

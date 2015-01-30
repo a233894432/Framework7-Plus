@@ -15,7 +15,6 @@
         margin-left: -10px;
         margin-top: -10px;
         visibility: hidden;
-        
     }
     .pull-to-refresh-arrow {
         width: 13px;
@@ -41,9 +40,6 @@
     min-height: 101%;   //because scroller won't bounce when page height <= 100%;
     &.pull-to-refresh-no-navbar {
         .pull-to-refresh-layer {
-            position: absolute;
-            top: -44px;
-            margin: 0;
         }
     }
     &.transitioning, &.refreshing {
@@ -55,6 +51,7 @@
         }
     }
     &.refreshing {
+        .translate3d(0,44px,0);
         .pull-to-refresh-arrow {
             visibility: hidden;
             .transition(0ms);

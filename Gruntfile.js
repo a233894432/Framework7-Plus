@@ -29,6 +29,7 @@ module.exports = function (grunt) {
         'src/js/wrap-start.js',
         'src/js/f7-intro.js',
         'src/js/iscroll.js',
+        'src/js/scroller.js',
         'src/js/views.js',
         'src/js/navbars.js',
         'src/js/searchbar.js',

@@ -75,13 +75,11 @@ app.initFastClicks = function () {
         if (tag === 'input' && skipInputs.indexOf(el.type) < 0) return true;
     }
     function targetNeedsPrevent(el) {
-        //not prevent default when android version <= 4.2.1 || version === 4.3
         el = $(el);
         if (el.is('label') || el.parents('label').length > 0) {
             if (app.device.os === 'android') {
                 var osv = app.device.osVersion.split('.');
-                var notPrevent = (osv[0] * 1 > 4 || (osv[0] * 1 === 4 && osv[1] * 1 >= 4)) || (app.device.osVersion === '4.2.1') || (app.device.osVersion === '4.1.1') || (app.device.osVersion === '4.2.2') ;
-                if (notPrevent) {
+                if (osv[0] * 1 > 4 || (osv[0] * 1 === 4 && osv[1] * 1 >= 4)) {
                     return false;
                 }
                 else return true;
@@ -148,7 +146,7 @@ app.initFastClicks = function () {
                 var parent = this;
                 if (parent.scrollHeight > parent.offsetHeight && !scrollParent) {
                     scrollParent = parent;
-                    scrollParent.f7ScrollTop = app.scrollTop(scrollParent);
+                    scrollParent.f7ScrollTop = scrollParent.scrollTop;
                 }
             });
         }
@@ -217,7 +215,7 @@ app.initFastClicks = function () {
         trackClick = false;
 
         if (app.device.os === 'ios' && scrollParent) {
-            if ( app.scrollTop(scrollParent) !== scrollParent.f7ScrollTop) {
+            if (scrollParent.scrollTop !== scrollParent.f7ScrollTop) {
                 return false;
             }
         }
