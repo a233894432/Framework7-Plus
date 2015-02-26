@@ -2,7 +2,7 @@
 ************   Pull To Refresh   ************
 ======================================================*/
 var refreshTime = 0;
-app.initPullToRefresh = function (pageContainer) {
+app.initPullToRefresh2 = function (pageContainer) {
     var eventsTarget = $(pageContainer);
     if (!eventsTarget.hasClass('pull-to-refresh-content')) {
         eventsTarget = eventsTarget.find('.pull-to-refresh-content');
@@ -10,7 +10,7 @@ app.initPullToRefresh = function (pageContainer) {
     if (!eventsTarget || eventsTarget.length === 0) return;
 
     var page = eventsTarget.hasClass('page') ? eventsTarget : eventsTarget.parents('.page');
-    var scroller = app.getScroller(page);
+    var scroller = app.getScroller(page.find('.page-content')[0]);
     var hasNavbar = false;
     if (page.find('.navbar').length > 0 || page.parents('.navbar-fixed, .navbar-through').length > 0 || page.hasClass('navbar-fixed') || page.hasClass('navbar-through')) hasNavbar = true;
     if (page.hasClass('no-navbar')) hasNavbar = false;
@@ -20,7 +20,7 @@ app.initPullToRefresh = function (pageContainer) {
 
     function handleScroll() {
         if(container.hasClass('refreshing')) return;
-        if(app.scrollTop(page) * -1 >= 44) {
+        if(scroller.scrollTop() * -1 >= 44) {
             container.removeClass('pull-down').addClass('pull-up');
         } else {
             container.removeClass('pull-up').addClass('pull-down');
@@ -38,12 +38,12 @@ app.initPullToRefresh = function (pageContainer) {
         refreshTime = + new Date();
     }
     scroller.on('scroll', handleScroll);
-    scroller.on('ptr', handleRefresh);
+    scroller.scroller.on('ptr', handleRefresh);
 
     // Detach Events on page remove
     function destroyPullToRefresh() {
         scroller.off('scroll', handleScroll);
-        scroller.off('ptr', handleRefresh);
+        scroller.scroller.off('ptr', handleRefresh);
     }
     eventsTarget[0].f7DestroyPullToRefresh = destroyPullToRefresh; 
 
@@ -57,25 +57,25 @@ app.initPullToRefresh = function (pageContainer) {
 
 };
 
-app.pullToRefreshDone = function (container) {
+app.pullToRefreshDone2 = function (container) {
     container = $(container);
     if (container.length === 0) container = $('.pull-to-refresh-content.refreshing');
     if (container.length === 0) return;
     var interval = (+ new Date()) - refreshTime;
     var timeOut = interval > 1000 ? 0 : 1000 - interval;  //long than bounce time
-    var scroller = app.getScroller(container.parent());
+    var scroller = app.getScroller(container);
     setTimeout(function() {
       scroller.refresh();
       container.removeClass('refreshing');
     }, timeOut);
 };
-app.pullToRefreshTrigger = function (container) {
+app.pullToRefreshTrigger2 = function (container) {
     container = $(container);
     if (container.length === 0) container = $('.pull-to-refresh-content');
     if (container.hasClass('refreshing')) return;
     container.addClass('refreshing');
-    var scroller = app.getScroller(container.parent());
-    scroller.scrollTo(0, 44 + 1, 200);
+    var scroller = app.getScroller(container);
+    scroller.scrollTop(44 + 1, 200);
     container.trigger('refresh', {
         done: function () {
             app.pullToRefreshDone(container);
@@ -83,7 +83,7 @@ app.pullToRefreshTrigger = function (container) {
     });
 };
 
-app.destroyPullToRefresh = function (pageContainer) {
+app.destroyPullToRefresh2 = function (pageContainer) {
     pageContainer = $(pageContainer);
     var pullToRefreshContent = pageContainer.hasClass('pull-to-refresh-content') ? pageContainer : pageContainer.find('.pull-to-refresh-content');
     if (pullToRefreshContent.length === 0) return;

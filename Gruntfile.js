@@ -45,6 +45,7 @@ module.exports = function (grunt) {
         'src/js/smart-select.js',
         'src/js/virtual-list.js',
         'src/js/pull-to-refresh.js',
+        'src/js/pull-to-refresh-js-scroll.js',
         'src/js/infinite-scroll.js',
         'src/js/scroll-toolbars.js',
         'src/js/tabs.js',

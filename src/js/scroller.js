@@ -4,23 +4,23 @@
 //a < b === -1
 app.compareVersion = function(a, b) {
   if(a === b) return 0;
-  var as = a.splite('.');
-  var bs = b.splite('.');
+  var as = a.split('.');
+  var bs = b.split('.');
   for(var i=0;i<as.length;i++) {
     var x = parseInt(as[i]);
     if(!bs[i]) return 1;
     var y = parseInt(bs[i]);
     if(x<y) return -1;
+    if(x>y) return 1;
   }
   return 1;
 };
 
 //自定义的滚动条
-//
 var Scroller = function(pageContent) {
   var $pageContent = this.$pageContent = $(pageContent);
-  if(app.device.android && app.compareVersion('4.4.0', app.device.osVersion)) {
-    var ptr = $(pageContent).find('.pull-to-refresh-content')[0];
+  if((app.device.android && app.compareVersion('4.4.0', app.device.osVersion) > -1) || (app.device.ios && app.compareVersion('6.0.0', app.device.osVersion) > -1)) {
+    var ptr = $(pageContent).hasClass('pull-to-refresh-content');
     var options = {
       probeType: 1,
       mouseWheel: true,
@@ -30,6 +30,10 @@ var Scroller = function(pageContent) {
       options.ptrOffset = 44;
     }
     this.scroller = new IScroll(pageContent, options);
+    app.initPullToRefresh = app.initPullToRefresh2;
+    app.pullToRefreshDone = app.pullToRefreshDone2;
+    app.pullToRefreshTrigger = app.pullToRefreshTrigger2;
+    app.destroyToRefresh = app.destroyToRefresh2;
   } else {
     $pageContent.addClass('native-scroll');
   }
@@ -53,6 +57,13 @@ Scroller.prototype.on = function(event, callback) {
     this.scroller.on(event, callback);
   } else {
     this.$pageContent.on(event, callback);
+  }
+};
+Scroller.prototype.off = function(event, callback) {
+  if(this.scroller) {
+    this.scroller.off(event, callback);
+  } else {
+    this.$pageContent.off(event, callback);
   }
 };
 //刷新滚动条
