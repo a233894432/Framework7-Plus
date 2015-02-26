@@ -86,6 +86,7 @@ app.initScroller = function(pageContent) {
     if(!$pageContentInner[0]) {
       $pageContent.html('<div class="page-content-inner">'+ $pageContent.html() + '</div>');
     }
+    $pageContent.find('.page-content-inner').css('min-height', ($(window).height()+20)+'px');
     
     var scroller = new Scroller(pageContent);
     pageContent.scroller = scroller;
