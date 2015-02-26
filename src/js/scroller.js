@@ -17,9 +17,10 @@ app.compareVersion = function(a, b) {
 };
 
 //自定义的滚动条
-var Scroller = function(pageContent) {
+var Scroller = function(pageContent, type) {
   var $pageContent = this.$pageContent = $(pageContent);
-  if((app.device.android && app.compareVersion('4.4.0', app.device.osVersion) > -1) || (app.device.ios && app.compareVersion('6.0.0', app.device.osVersion) > -1)) {
+  var useJSScroller = (type === 'auto' && (app.device.android && app.compareVersion('4.4.0', app.device.osVersion) > -1) || (app.device.ios && app.compareVersion('6.0.0', app.device.osVersion) > -1)) || type === 'js';
+  if(useJSScroller) {
     var ptr = $(pageContent).hasClass('pull-to-refresh-content');
     var options = {
       probeType: 1,
@@ -107,7 +108,7 @@ app.initScroller = function(pageContent) {
     }
     $pageContent.find('.page-content-inner').css('min-height', ($(window).height()+20)+'px');
     
-    var scroller = new Scroller(pageContent);
+    var scroller = new Scroller(pageContent, app.params.scroller);
     pageContent.scroller = scroller;
 };
 app.refreshScroller = function(content) { //如果未传入container，则取当前显示的page

@@ -101,6 +101,7 @@ window.Framework7 = function (params) {
         precompileTemplates: false,
         // Auto init
         init: true,
+        scroller: 'auto', //auto/js/native
     };
 
     // Extend defaults with parameters

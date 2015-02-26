@@ -3,7 +3,7 @@
 ## Framework7-Plus 是什么
 [Framework7](http://framework7.taobao.org/) 是一个开源免费的框架可以用来开发混合移动应用（原生和HTML混合）或者开发iOS7风格的WEB APP。也可以用来作为原型开发工具，可以迅速创建一个应用的原型。Framework7 的特点是对iOS提供最好的体验，像素级模仿iOS的设计，不过它并不能保证对安卓设备的兼容性。
 Framework7-Plus的目标是修复F7在安卓4.0+上的兼容性问题，并且尽可能不改变现有的API，这样可以方便已经使用F7开发的项目迁移到F7-Plus。
-如果你打算开发一个兼容安卓和iOS设备的Web App，或者你已经基于F7开发完成但是在安卓设备下碰到了很多问题，那么F7-Plus将是你很好的选择。关于如何将 F7项目迁移到F7-Plus，请参见[F7迁移到F7-Plus](#transfer)。如果你对兼容性问题感兴趣，可以参见[Framework7 在安卓上的主要兼容性问题](#compitable)
+如果你打算开发一个兼容安卓和iOS设备的Web App，或者你已经基于F7开发完成但是在安卓设备下碰到了很多问题，那么F7-Plus将是你很好的选择。关于如何将 F7项目迁移到F7-Plus，请参见[F7迁移到F7-Plus](#transfer)。如果你对兼容性问题感兴趣，可以参见[Framework7 在安卓上的主要兼容性问题](#compitable)。
 **现在还处在测试阶段，欢迎试用并反馈问题。有任何问题或者建议都可以通过pull request/issue形式提交，或者直接发邮件给我 hongxun.lhx@alibaba-inc.com**
 
 ## Framework7-Plus的改动和文档
@@ -11,9 +11,21 @@ F7-Plus影响最大的改动是用[iScroll](https://github.com/cubiq/iscroll)替
 一些基于flexbox布局的组件被修改成了兼容性更好的float布局，svg图标被替换成了iconfont，参见 [其他组件的修改](#other-components)。
 
 <a name='iscroll'></a>
-## iscroll滚动条
+## scroller滚动条
 为了解决安卓上的滚动兼容性问题，F7-Plus 增加了一个 scroller 对象，这个对象提供了统一的滚动API。它在底层会自动判断系统的版本，对高版本的IOS和安卓使用原生滚动条，否则会使用JS滚动条（参见 [iscroll](https://github.com/cubiq/iscroll))。
 所以在低版本的系统中，`.page-content`内部增加了一个 `.page-content-inner` 容器，这个容器通过 `translate` 在 `.page-content` 中滚动。如果你的HTML代码中， `.page-content` 下面没有 `.page-content-inner` 容器，那么在初始化 page 的时候会自动创建一个，所以请确保你的页面相关的所有JS代码都是在 pageInit 事件回调中执行的。
+
+### scroller 配置
+初始化配置中增加了一个 `scroller` 参数，可以用来配置滚动条类型，有以下三种值可以配置：
+
+- `auto` 根据系统版本自动选择滚动条类型。默认值。会根据系统版本自动选择原生滚动条或者JS滚动条。在 ios >=6.0 以及 android >= 4.4.0 的系统上会使用原生滚动条，否则会使用JS滚动条。
+- `js` 总是使用JS滚动条
+- `native` 总是使用原生滚动条。如果你的页面结构比较简单，比如是一大段文案说明,可能使用原生滚动条不会有问题，可以使用这个选项强制使用原生滚动条。
+
+例如：
+```
+var myApp = new Framework7({scroller:"native"});  //总是使用原生滚动条。
+```
 
 ### iscroll 新增的API
 F7-Plus 在 `pageinit` 的时候会自动初始化一个滚动条，并且把它存储到对应的 `.page` DOM元素上。不过不建议直接从DOM元素上获取，而是通过下面的API来使用。
@@ -88,7 +100,7 @@ message 组件使用了 `flexbox` 布局，这里把 `.message` 改成了 float 
 ## F7迁移到F7-Plus
 
 F7-Plus 尽可能保证了原来的API不变，减少迁移难度。不过迁移的时候，除了替换掉F7的库之外，还是有一些需要修改的代码和需要注意的地方。
-- 首先需要修改的是所有和滚动条相关的逻辑，原生的滚动条被替换成了iScroll滚动条，并且滚动容器从 `.page-content` 变成了 `.page`，导致页面高度变化的操作之后需要刷新滚动条，具体参见 [iscroll滚动条](#iscroll)。
+- 首先需要修改的是所有和滚动条相关的逻辑，因为在低版本的系统上会自动启用JS滚动条，所以导致页面高度变化的操作之后需要刷新滚动条，具体参见 [scroller滚动条](#iscroll)。
 - 如果你用到了 [其他组件的修改](#other-components) 中提到的组件，并且修改了他们的样式，那么你可能需要重新检查一下你的CSS，因为他们的布局已经发生了变化。
 
 上面就是你所有需要注意的地方，很多时候，你唯一需要做的就是刷新一下滚动条而已，是不是很简单。
