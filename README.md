@@ -11,27 +11,43 @@ F7-Plus影响最大的改动是用[iScroll](https://github.com/cubiq/iscroll)替
 
 <a name='iscroll'></a>
 ## iscroll滚动条
-为了解决安卓上的F7-Plus 用 iScroll 替换了原生的滚动条，并且在pageInit阶段自动初始化了这个滚动条，这是一个影响最大的修改。
-一方面，他影响了滚动方式，F7中是 `.page-content` 内部滚动，修改之后，`.page-content`作为一个类似绝对定位的容器（`translate3D`)，内部不会滚动，而是作为一个整体在 `.page`容器中滚动条。可以理解为从 `.page-content` 内部的滚动变成了 `.page` 内部的滚动。
-另一方面，无法再使用原生的滚动条，取而代之的是一个iscroll的实例，这个实例存储在 `.page` 上的 `.scroller`属性中，你可以通过 类似这样的代码 `$$(".page")[0].scroller` 来获取滚动条实例，最好的方式是通过下面将要介绍的新API来操作。
+为了解决安卓上的滚动兼容性问题，F7-Plus 增加了一个 scroller 对象，这个对象提供了统一的滚动API。它在底层会自动判断系统的版本，对高版本的IOS和安卓使用原生滚动条，否则会使用JS滚动条（参见 [iscroll](https://github.com/cubiq/iscroll))。
+所以在低版本的系统中，`.page-content`内部增加了一个 `.page-content-inner` 容器，这个容器通过 `translate` 在 `.page-content` 中滚动。如果你的HTML代码中， `.page-content` 下面没有 `.page-content-inner` 容器，那么在初始化 page 的时候会自动创建一个，所以请确保你的页面相关的所有JS代码都是在 pageInit 事件回调中执行的。
 
 ### iscroll 新增的API
 F7-Plus 在 `pageinit` 的时候会自动初始化一个滚动条，并且把它存储到对应的 `.page` DOM元素上。不过不建议直接从DOM元素上获取，而是通过下面的API来使用。
 新增了这几个API：
 
-**app.getScroller(container)**
+**app.getScroller(content)**
 
-获取滚动条示例，这个container应该是一个 `.page` 节点。如果你没有传入container，则自动获取当前显示的页面的滚动条。返回值是一个 iScroll 实例，它的API请参见 [iScroll](https://github.com/cubiq/iscroll)。
+获取滚动条示例，这个content应该是一个 `.page-content` 节点。如果你没有传入content，则自动获取当前显示的页面的滚动条。返回值是一个 scroller 实例。
 
-**app.refreshScroller(container)**
+**app.refreshScroller(content)**
 
-刷新滚动条。任何导致 `.page-content` 容器产生高度变化的操作之后，都需要刷新JS滚动条。不过F7的原生组件，包括下拉刷新，手风琴，标签页等已经自动做了刷新操作，不需要再次刷新。
-`container` 是一个 `.page` 节点，如果没有传入 `container` 参数，则直接刷新当前显示的页面。
+刷新滚动条。任何导致 `.page-content-inner` 容器产生高度变化的操作之后，都需要刷新JS滚动条。不过F7的原生组件，包括下拉刷新，手风琴，标签页等已经自动做了刷新操作，不需要再次刷新。
+`content` 是一个 `.page-content` 节点，如果没有传入 `content` 参数，则直接刷新当前显示的页面。
+如果当前是原生滚动条，则此函数不做任何操作直接返回。
 **注意，如果滚动条正在执行滚动动画，那么这时候刷新滚动条会导致页面闪一下，请避免在滚动的时候刷新滚动条。下拉刷新之后不要刷新滚动条，因为下拉刷新组件自己做了刷新操作。**
 
+**scroller.scrollTop(top, duration)**
+滚动到某一位置，top是滚动距离，duration第二个参数是时间。如果没有传入任何参数，则直接返回当前页面滚动距离顶部的位置。
+
+**scroller.on(event, callback)**
+绑定事件，和原生滚动条是一样的API。 
+例如 `scroller.on("scroll", onScroll);`
+
+**scroller.off(event, callback)**
+解绑事件
+
+**scroller.refresh()**
+刷新滚动条
+
+**scroller.scrollHeight()**
+返回当前滚动内容的高度
+
 滚动条相关改动的需要注意以下三点：
-1. 滚动条容器从 `.page-content` 变成了 `.page`
-2. 原生的滚动事件不可用，应该用 iScroll 的事件
+1. `.page-content` 中增加了一个 `.page-content-inner` 容器.
+2. 原生的滚动事件不可用，应该用 scroller 封装的事件。
 3. 任何导致 `.page-content` 高度变化的操作都要刷新滚动条。
 
 <a name="other-components"></a>
