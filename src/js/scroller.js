@@ -30,10 +30,10 @@ var Scroller = function(pageContent) {
       options.ptrOffset = 44;
     }
     this.scroller = new IScroll(pageContent, options);
-    app.initPullToRefresh = app.initPullToRefresh2;
-    app.pullToRefreshDone = app.pullToRefreshDone2;
-    app.pullToRefreshTrigger = app.pullToRefreshTrigger2;
-    app.destroyToRefresh = app.destroyToRefresh2;
+    app.initPullToRefresh = app.initPullToRefreshJS;
+    app.pullToRefreshDone = app.pullToRefreshDoneJS;
+    app.pullToRefreshTrigger = app.pullToRefreshTriggerJS;
+    app.destroyToRefresh = app.destroyToRefreshJS;
   } else {
     $pageContent.addClass('native-scroll');
   }
@@ -54,7 +54,9 @@ Scroller.prototype.scrollTop = function(top, dur) {
 //scroll, scrollEnd, scrollStart
 Scroller.prototype.on = function(event, callback) {
   if(this.scroller) {
-    this.scroller.on(event, callback);
+    this.scroller.on(event, function() {
+      callback.call(this.wrapper);
+    });
   } else {
     this.$pageContent.on(event, callback);
   }
@@ -68,7 +70,14 @@ Scroller.prototype.off = function(event, callback) {
 };
 //刷新滚动条
 Scroller.prototype.refresh = function() {
-  if(this.scroller)this.scroller.refresh();
+  if(this.scroller) this.scroller.refresh();
+};
+Scroller.prototype.scrollHeight = function() {
+  if(this.scroller) {
+    return this.scroller.scrollerHeight;
+  } else {
+    return this.$pageContent[0].scrollHeight;
+  }
 };
 
 app.initScroller = function(pageContent) {

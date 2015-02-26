@@ -2,7 +2,7 @@
 ************   Pull To Refresh   ************
 ======================================================*/
 var refreshTime = 0;
-app.initPullToRefresh2 = function (pageContainer) {
+app.initPullToRefreshJS = function (pageContainer) {
     var eventsTarget = $(pageContainer);
     if (!eventsTarget.hasClass('pull-to-refresh-content')) {
         eventsTarget = eventsTarget.find('.pull-to-refresh-content');
@@ -57,7 +57,7 @@ app.initPullToRefresh2 = function (pageContainer) {
 
 };
 
-app.pullToRefreshDone2 = function (container) {
+app.pullToRefreshDoneJS = function (container) {
     container = $(container);
     if (container.length === 0) container = $('.pull-to-refresh-content.refreshing');
     if (container.length === 0) return;
@@ -69,7 +69,7 @@ app.pullToRefreshDone2 = function (container) {
       container.removeClass('refreshing');
     }, timeOut);
 };
-app.pullToRefreshTrigger2 = function (container) {
+app.pullToRefreshTriggerJS = function (container) {
     container = $(container);
     if (container.length === 0) container = $('.pull-to-refresh-content');
     if (container.hasClass('refreshing')) return;
@@ -83,7 +83,7 @@ app.pullToRefreshTrigger2 = function (container) {
     });
 };
 
-app.destroyPullToRefresh2 = function (pageContainer) {
+app.destroyPullToRefreshJS = function (pageContainer) {
     pageContainer = $(pageContainer);
     var pullToRefreshContent = pageContainer.hasClass('pull-to-refresh-content') ? pageContainer : pageContainer.find('.pull-to-refresh-content');
     if (pullToRefreshContent.length === 0) return;
