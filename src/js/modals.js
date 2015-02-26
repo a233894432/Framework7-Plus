@@ -391,6 +391,7 @@ app.popup = function (modal, removeOnClose) {
         app.sizeNavbars(modal.find('.' + app.params.viewClass)[0]);
     }
     app.openModal(modal);
+    app.refreshScroller(modal.find('.page-content'));
     return modal[0];
 };
 app.loginScreen = function (modal) {

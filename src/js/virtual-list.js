@@ -24,6 +24,7 @@ var VirtualList = function (listBlock, params) {
         else if (typeof params.template === 'function') vl.template = params.template;
     }
     vl.pageContent = vl.listBlock.parents('.page-content');
+    var scroller = app.getScroller(vl.pageContent);
 
     // Bad scroll
     var updatableScroll;
@@ -112,7 +113,7 @@ var VirtualList = function (listBlock, params) {
         if (force) vl.lastRepaintY = null;
         // var scrollTop = vl.pageContent[0].scrollTop;
         var scrollTop = -(vl.listBlock[0].getBoundingClientRect().top + vl.pageContent[0].getBoundingClientRect().top);
-        if (vl.lastRepaintY === null || Math.abs(scrollTop - vl.lastRepaintY) > maxBufferHeight || (!updatableScroll && (vl.pageContent[0].scrollTop + pageHeight >= vl.pageContent[0].scrollHeight))) {
+        if (vl.lastRepaintY === null || Math.abs(scrollTop - vl.lastRepaintY) > maxBufferHeight || (!updatableScroll && (scroller.scrollTop + pageHeight >= scroller.scrollHeight()))) {
             vl.lastRepaintY = scrollTop;
         }
         else {
@@ -215,6 +216,7 @@ var VirtualList = function (listBlock, params) {
         if (vl.params.onItemsBeforeInsert) vl.params.onItemsBeforeInsert(vl, vl.fragment);
         vl.ul[0].appendChild(vl.fragment);
         if (vl.params.onItemsAfterInsert) vl.params.onFragmentAfterInsert(vl, vl.fragment);
+        app.getScroller().refresh();
     };
 
     // Handle scroll event
@@ -229,7 +231,7 @@ var VirtualList = function (listBlock, params) {
 
     vl.attachEvents = function (detach) {
         var action = detach ? 'off' : 'on';
-        vl.pageContent[action]('scroll', vl.handleScroll);
+        app.getScroller()[action]('scroll', vl.handleScroll);
         $(window)[action]('resize', vl.handleResize);
     };
 

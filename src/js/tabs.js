@@ -65,6 +65,8 @@ app.showTab = function (tab, tabLink) {
     // Update links' classes
     if (tabLink && tabLink.length > 0) tabLink.addClass('active');
     if (oldTabLink && oldTabLink.length > 0) oldTabLink.removeClass('active');
+
+    app.refreshScroller();
     
     return true;
 };

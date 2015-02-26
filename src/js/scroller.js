@@ -42,7 +42,7 @@ var Scroller = function(pageContent) {
 //如果没有传入参数，则返回当前滚动距离
 Scroller.prototype.scrollTop = function(top, dur) {
   if(this.scroller) {
-    if(top) {
+    if(top !== undefined) {
       this.scroller.scrollTo(0, -1 * top, dur);
     } else {
       return this.scroller.getComputedPosition().y * -1;
@@ -50,6 +50,7 @@ Scroller.prototype.scrollTop = function(top, dur) {
   } else {
     return this.$pageContent.scrollTop(top, dur);
   }
+  return this;
 };
 //scroll, scrollEnd, scrollStart
 Scroller.prototype.on = function(event, callback) {
@@ -60,6 +61,7 @@ Scroller.prototype.on = function(event, callback) {
   } else {
     this.$pageContent.on(event, callback);
   }
+  return this;
 };
 Scroller.prototype.off = function(event, callback) {
   if(this.scroller) {
@@ -67,10 +69,12 @@ Scroller.prototype.off = function(event, callback) {
   } else {
     this.$pageContent.off(event, callback);
   }
+  return this;
 };
 //刷新滚动条
 Scroller.prototype.refresh = function() {
   if(this.scroller) this.scroller.refresh();
+  return this;
 };
 Scroller.prototype.scrollHeight = function() {
   if(this.scroller) {
@@ -80,7 +84,22 @@ Scroller.prototype.scrollHeight = function() {
   }
 };
 
+//在JS 滚动条下启用/禁用滚动功能
+Scroller.prototype.enable = function() {
+  if(this.scroller) {
+    this.scroller.enable();
+  }
+  return this;
+};
+Scroller.prototype.disable = function() {
+  if(this.scroller) {
+    this.scroller.disable();
+  }
+  return this;
+};
+
 app.initScroller = function(pageContent) {
+    if(!pageContent) return;
     var $pageContent = $(pageContent);
     var $pageContentInner = $pageContent.find('.page-content-inner');
     if(!$pageContentInner[0]) {
