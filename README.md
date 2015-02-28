@@ -127,4 +127,4 @@ Framework7 内置了一个fast click库，它在处理label的prevent default逻
 现在的做法是把基于flexbox布局的grid，改成了基于 `float` 的布局。有一点和以前不一样，以前的布局是固定的15px 间距，现在变成一个百分比。
 另外一个是message组件，他用的也是 flexbox 布局，而flexbox容器的宽度无法完美自适应，已经把flex替换成了float布局。
 
-** 更新到 v1.0.2。因为新版本用 `before` 和 `after` 伪元素实现了一像素的边框，和iconfont背景图标有冲突，所以恢复了svg作为背景图标。 **
+**更新到 v1.0.2。因为新版本用 `before` 和 `after` 伪元素实现了一像素的边框，和iconfont背景图标有冲突，所以恢复了svg作为背景图标。**
