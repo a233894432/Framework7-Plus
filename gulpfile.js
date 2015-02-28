@@ -55,6 +55,8 @@
             jsFiles: [
                 'src/js/wrap-start.js',
                 'src/js/f7-intro.js',
+                'src/js/iscroll.js',
+                'src/js/scroller.js',
                 'src/js/views.js',
                 'src/js/navbars.js',
                 'src/js/searchbar.js',
@@ -71,6 +73,7 @@
                 'src/js/smart-select.js',
                 'src/js/virtual-list.js',
                 'src/js/pull-to-refresh.js',
+                'src/js/pull-to-refresh-js-scroll.js',
                 'src/js/infinite-scroll.js',
                 'src/js/scroll-toolbars.js',
                 'src/js/tabs.js',
