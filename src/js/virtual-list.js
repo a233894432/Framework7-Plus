@@ -5,7 +5,8 @@ var VirtualList = function (listBlock, params) {
     var defaults = {
         cols: 1,
         height: 44,
-        cache: true
+        cache: true,
+        dynamicHeightBufferSize: 1
     };
     params = params || {};
     for (var def in defaults) {
@@ -109,11 +110,13 @@ var VirtualList = function (listBlock, params) {
     };
 
     // Render items
-    vl.render = function (force) {
+    vl.render = function (force, forceScrollTop) {
         if (force) vl.lastRepaintY = null;
-        // var scrollTop = vl.pageContent[0].scrollTop;
+
         var scrollTop = -(vl.listBlock[0].getBoundingClientRect().top + vl.pageContent[0].getBoundingClientRect().top);
-        if (vl.lastRepaintY === null || Math.abs(scrollTop - vl.lastRepaintY) > maxBufferHeight || (!updatableScroll && (scroller.scrollTop + pageHeight >= scroller.scrollHeight()))) {
+        if (typeof forceScrollTop !== 'undefined') scrollTop = forceScrollTop;
+
+        if (vl.lastRepaintY === null || Math.abs(scrollTop - vl.lastRepaintY) > maxBufferHeight || (!updatableScroll && (scroller.scrollTop() + pageHeight >= scroller.scrollHeight()))) {
             vl.lastRepaintY = scrollTop;
         }
         else {
@@ -125,15 +128,16 @@ var VirtualList = function (listBlock, params) {
         if (dynamicHeight) {
             var itemTop = 0, j, itemHeight; 
             maxBufferHeight = pageHeight;
+            
             for (j = 0; j < vl.heights.length; j++) {
                 itemHeight = vl.heights[j];
                 if (typeof fromIndex === 'undefined') {
-                    if (itemTop + itemHeight >= scrollTop - pageHeight * 2) fromIndex = j;
+                    if (itemTop + itemHeight >= scrollTop - pageHeight * 2 * vl.params.dynamicHeightBufferSize) fromIndex = j;
                     else heightBeforeFirstItem += itemHeight;
                 }
                 
                 if (typeof toIndex === 'undefined') {
-                    if (itemTop + itemHeight >= scrollTop + pageHeight * 2 || j === vl.heights.length - 1) toIndex = j + 1;
+                    if (itemTop + itemHeight >= scrollTop + pageHeight * 2 * vl.params.dynamicHeightBufferSize || j === vl.heights.length - 1) toIndex = j + 1;
                     heightBeforeLastItem += itemHeight;
                 }
                 itemTop += itemHeight;
@@ -217,6 +221,27 @@ var VirtualList = function (listBlock, params) {
         vl.ul[0].appendChild(vl.fragment);
         if (vl.params.onItemsAfterInsert) vl.params.onFragmentAfterInsert(vl, vl.fragment);
         app.getScroller().refresh();
+
+        if (typeof forceScrollTop !== 'undefined' && force) {
+            vl.pageContent.scrollTop(forceScrollTop, 0);
+        }
+    };
+
+    vl.scrollToItem = function (index) {
+        if (index > vl.items.length) return false;
+
+        var itemTop = 0, listTop;
+        if (dynamicHeight) {
+            for (var i = 0; i < index; i++) {
+                itemTop += vl.heights[i];
+            }
+        }
+        else {
+            itemTop = index * vl.params.height;
+        }
+        listTop = vl.listBlock[0].offsetTop;
+        vl.render(true, listTop + itemTop - parseInt(vl.pageContent.css('padding-top'), 10));
+        return true;
     };
 
     // Handle scroll event

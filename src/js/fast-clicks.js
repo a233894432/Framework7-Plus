@@ -13,8 +13,14 @@ app.initFastClicks = function () {
     function findActivableElement(e) {
         var target = $(e.target);
         var parents = target.parents(app.params.activeStateElements);
-        
-        return (parents.length > 0) ? parents : target;
+        var activable;
+        if (target.is(app.params.activeStateElements)) {
+            activable = target;
+        }
+        if (parents.length > 0) {
+            activable = activable ? activable.add(parents) : parents;
+        }
+        return activable ? activable : target;
     }
     function isInsideScrollableView() {
         var pageContent = activableElement.parents('.page-content, .panel');
@@ -69,24 +75,24 @@ app.initFastClicks = function () {
         if (el.disabled || el.readOnly) return false;
         if (tag === 'textarea') return true;
         if (tag === 'select') {
-            if (app.device.os === 'android') return false;
+            if (app.device.android) return false;
             else return true;
         }
         if (tag === 'input' && skipInputs.indexOf(el.type) < 0) return true;
     }
     function targetNeedsPrevent(el) {
         el = $(el);
+        var prevent = true;
         if (el.is('label') || el.parents('label').length > 0) {
-            if (app.device.os === 'android') {
-                var osv = app.device.osVersion.split('.');
-                if (osv[0] * 1 > 4 || (osv[0] * 1 === 4 && osv[1] * 1 >= 4)) {
-                    return false;
-                }
-                else return true;
+            if (app.device.android) {
+                prevent = false;
             }
-            else return false;
+            else if (app.device.ios && el.is('input')) {
+                prevent = true;
+            }
+            else prevent = false;
         }
-        return true;
+        return prevent;
     }
 
     // Mouse Handlers
@@ -117,7 +123,7 @@ app.initFastClicks = function () {
             trackClick = false;
             return true;
         }
-        if (app.device.os === 'ios') {
+        if (app.device.ios) {
             var selection = window.getSelection();
             if (selection.rangeCount && selection.focusNode !== document.body && (!selection.isCollapsed || document.activeElement === selection.focusNode)) {
                 activeSelection = true;
@@ -127,7 +133,7 @@ app.initFastClicks = function () {
                 activeSelection = false;
             }
         }
-        if (app.device.os === 'android')  {
+        if (app.device.android)  {
             if (androidNeedsBlur(e.target)) {
                 document.activeElement.blur();
             }
@@ -140,7 +146,7 @@ app.initFastClicks = function () {
         touchStartY = e.targetTouches[0].pageY;
 
         // Detect scroll parent
-        if (app.device.os === 'ios') {
+        if (app.device.ios) {
             scrollParent = undefined;
             $(targetElement).parents().each(function () {
                 var parent = this;
@@ -150,7 +156,7 @@ app.initFastClicks = function () {
                 }
             });
         }
-        if ((e.timeStamp - lastClickTime) < 200) {
+        if ((e.timeStamp - lastClickTime) < app.params.fastClicksDelayBetweenClicks) {
             e.preventDefault();
         }
         if (app.params.activeState) {
@@ -194,7 +200,11 @@ app.initFastClicks = function () {
         clearTimeout(activeTimeout);
 
         if (!trackClick) {
-            if (!activeSelection && needsFastClick) e.preventDefault();
+            if (!activeSelection && needsFastClick) {
+                if (!(app.device.android && !e.cancelable)) {
+                    e.preventDefault();
+                }
+            }
             return true;
         }
 
@@ -206,7 +216,8 @@ app.initFastClicks = function () {
             e.preventDefault();
         }
 
-        if ((e.timeStamp - lastClickTime) < 200) {
+        if ((e.timeStamp - lastClickTime) < app.params.fastClicksDelayBetweenClicks) {
+            setTimeout(removeActive, 0);
             return true;
         }
 
@@ -214,7 +225,7 @@ app.initFastClicks = function () {
 
         trackClick = false;
 
-        if (app.device.os === 'ios' && scrollParent) {
+        if (app.device.ios && scrollParent) {
             if (scrollParent.scrollTop !== scrollParent.f7ScrollTop) {
                 return false;
             }
@@ -233,17 +244,22 @@ app.initFastClicks = function () {
             targetElement.focus();
         }
 
+        // Blur active elements
+        if (document.activeElement && targetElement !== document.activeElement && document.activeElement !== document.body && targetElement.nodeName.toLowerCase() !== 'label') {
+            document.activeElement.blur();
+        }
+
+        // Send click
         e.preventDefault();
         var touch = e.changedTouches[0];
         var evt = document.createEvent('MouseEvents');
         var eventType = 'click';
-        if (app.device.os === 'android' && targetElement.nodeName.toLowerCase() === 'select') {
+        if (app.device.android && targetElement.nodeName.toLowerCase() === 'select') {
             eventType = 'mousedown';
         }
         evt.initMouseEvent(eventType, true, true, window, 1, touch.screenX, touch.screenY, touch.clientX, touch.clientY, false, false, false, false, 0, null);
         evt.forwardedTouchEvent = true;
         targetElement.dispatchEvent(evt);
-
         return false;
     }
     function handleTouchCancel(e) {
@@ -253,7 +269,6 @@ app.initFastClicks = function () {
 
     function handleClick(e) {
         var allowClick = false;
-
         if (trackClick) {
             targetElement = null;
             trackClick = false;
@@ -263,9 +278,11 @@ app.initFastClicks = function () {
         if (e.target.type === 'submit' && e.detail === 0) {
             return true;
         }
-
-        if (!targetElement) {
-            allowClick =  true;
+        // if (!targetElement) {
+        //     allowClick =  true;
+        // }
+        if (!needsFastClick) {
+            allowClick = true;
         }
         if (document.activeElement === targetElement) {
             allowClick =  true;
@@ -276,7 +293,6 @@ app.initFastClicks = function () {
         if (!e.cancelable) {
             allowClick =  true;
         }
-
         if (!allowClick) {
             e.stopImmediatePropagation();
             e.stopPropagation();
@@ -290,7 +306,6 @@ app.initFastClicks = function () {
             }
             targetElement = null;
         }
-
         return allowClick;
     }
     if (app.support.touch) {

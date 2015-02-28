@@ -35,6 +35,7 @@ app.initSearchbar = function (pageContainer) {
     // Cancel button
     var cancelMarginProp = app.rtl ? 'margin-left' : 'margin-right';
     if (cancel.length > 0) {
+        cancel.show();
         cancel.css(cancelMarginProp, -cancel[0].offsetWidth + 'px');
     }
         
@@ -148,6 +149,7 @@ app.initSearchbar = function (pageContainer) {
             }
         }
         else {
+            searchIn = searchbar.attr('data-search-in');
             searchList.find('li').removeClass('hidden-by-searchbar').each(function (index, el) {
                 el = $(el);
                 var compareWithEl = el.find(searchIn);

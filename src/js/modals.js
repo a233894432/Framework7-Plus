@@ -2,6 +2,12 @@
 ************   Modals   ************
 ======================================================*/
 var _modalTemplateTempDiv = document.createElement('div');
+app.modalStack = [];
+app.modalStackClearQueue = function () {
+    if (app.modalStack.length) {
+        (app.modalStack.shift())();
+    }
+};
 app.modal = function (params) {
     params = params || {};
     var modalHTML = '';
@@ -394,6 +400,22 @@ app.popup = function (modal, removeOnClose) {
     app.refreshScroller(modal.find('.page-content'));
     return modal[0];
 };
+app.pickerModal = function (pickerModal, removeOnClose) {
+    if (typeof removeOnClose === 'undefined') removeOnClose = true;
+    if (typeof pickerModal === 'string' && pickerModal.indexOf('<') >= 0) {
+        pickerModal = $(pickerModal);
+        if (pickerModal.length > 0) {
+            if (removeOnClose) pickerModal.addClass('remove-on-close');
+            $('body').append(pickerModal[0]);
+        }
+        else return false; //nothing found
+    }
+    pickerModal = $(pickerModal);
+    if (pickerModal.length === 0) return false;
+    pickerModal.show();
+    app.openModal(pickerModal);
+    return pickerModal[0];
+};
 app.loginScreen = function (modal) {
     if (!modal) modal = '.login-screen';
     modal = $(modal);
@@ -407,14 +429,26 @@ app.loginScreen = function (modal) {
 };
 app.openModal = function (modal) {
     modal = $(modal);
-
+    var isModal = modal.hasClass('modal');
+    if ($('.modal.modal-in:not(.modal-out)').length && app.params.modalStack && isModal) {
+        app.modalStack.push(function () {
+            app.openModal(modal);
+        });
+        return;
+    }
     var isPopover = modal.hasClass('popover');
     var isPopup = modal.hasClass('popup');
     var isLoginScreen = modal.hasClass('login-screen');
-    if (!isPopover && !isPopup && !isLoginScreen) modal.css({marginTop: - Math.round(modal.outerHeight() / 2) + 'px'});
+    var isPickerModal = modal.hasClass('picker-modal');
+    if (isModal) {
+        modal.show();
+        modal.css({
+            marginTop: - Math.round(modal.outerHeight() / 2) + 'px'
+        });
+    }
 
     var overlay;
-    if (!isLoginScreen) {
+    if (!isLoginScreen && !isPickerModal) {
         if ($('.modal-overlay').length === 0 && !isPopup) {
             $('body').append('<div class="modal-overlay"></div>');
         }
@@ -430,8 +464,13 @@ app.openModal = function (modal) {
     // Trugger open event
     modal.trigger('open');
 
+    // Picker modal body class
+    if (isPickerModal) {
+        $('body').addClass('with-picker-modal');
+    }
+
     // Classes for transition in
-    if (!isLoginScreen) overlay.addClass('modal-overlay-visible');
+    if (!isLoginScreen && !isPickerModal) overlay.addClass('modal-overlay-visible');
     modal.removeClass('modal-out').addClass('modal-in').transitionEnd(function (e) {
         if (modal.hasClass('modal-out')) modal.trigger('closed');
         else modal.trigger('opened');
@@ -443,9 +482,11 @@ app.closeModal = function (modal) {
     if (typeof modal !== 'undefined' && modal.length === 0) {
         return;
     }
+    var isModal = modal.hasClass('modal');
     var isPopover = modal.hasClass('popover');
     var isPopup = modal.hasClass('popup');
     var isLoginScreen = modal.hasClass('login-screen');
+    var isPickerModal = modal.hasClass('picker-modal');
 
     var removeOnClose = modal.hasClass('remove-on-close');
 
@@ -455,18 +496,27 @@ app.closeModal = function (modal) {
             overlay.removeClass('modal-overlay-visible');    
         }  
     }
-    else {
+    else if (!isPickerModal) {
         overlay.removeClass('modal-overlay-visible');
     }
 
     modal.trigger('close');
+    
+    // Picker modal body class
+    if (isPickerModal) {
+        $('body').removeClass('with-picker-modal');
+        $('body').addClass('picker-modal-closing');
+    }
 
     if (!isPopover) {
         modal.removeClass('modal-in').addClass('modal-out').transitionEnd(function (e) {
             if (modal.hasClass('modal-out')) modal.trigger('closed');
             else modal.trigger('opened');
             
-            if (isPopup || isLoginScreen) {
+            if (isPickerModal) {
+                $('body').removeClass('picker-modal-closing');
+            }
+            if (isPopup || isLoginScreen || isPickerModal) {
                 modal.removeClass('modal-out').hide();
                 if (removeOnClose && modal.length > 0) {
                     modal.remove();
@@ -476,6 +526,9 @@ app.closeModal = function (modal) {
                 modal.remove();
             }
         });
+        if (isModal && app.params.modalStack) {
+            app.modalStackClearQueue();
+        }
     }
     else {
         modal.removeClass('modal-in modal-out').trigger('closed').hide();

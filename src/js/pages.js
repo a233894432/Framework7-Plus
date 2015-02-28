@@ -83,12 +83,13 @@ app.pageInitCallback = function (view, params) {
         container: pageContainer,
         scroller: pageContainer.scroller,
         url: params.url,
-        query: $.parseUrlQuery(params.url || ''),
+        query: params.query || $.parseUrlQuery(params.url || ''),
         name: $(pageContainer).attr('data-page'),
         view: view,
         from: params.position,
         context: params.context,
-        navbarInnerContainer: params.navbarInnerContainer
+        navbarInnerContainer: params.navbarInnerContainer,
+        fromPage: params.fromPage
     };
 
     if (pageContainer.f7PageInitialized && view.params.domCache) {
@@ -108,7 +109,7 @@ app.pageInitCallback = function (view, params) {
     pageContainer.f7PageData = pageData;
 
     // Update View's activePage
-    if (view) view.activePage = pageData;
+    if (view && !params.preloadOnly) view.activePage = pageData;
 
     // Before Init Callbacks
     app.pluginHook('pageBeforeInit', pageData);
@@ -126,6 +127,8 @@ app.pageInitCallback = function (view, params) {
     $(pageData.container).trigger('pageInit', {page: pageData});
 };
 app.pageRemoveCallback = function (view, pageContainer, position) {
+    var pageContext;
+    if (pageContainer.f7PageData) pageContext = pageContainer.f7PageData.context;
     // Page Data
     var pageData = {
         container: pageContainer,
@@ -133,7 +136,9 @@ app.pageRemoveCallback = function (view, pageContainer, position) {
         view: view,
         url: pageContainer.f7PageData && pageContainer.f7PageData.url,
         query: pageContainer.f7PageData && pageContainer.f7PageData.query,
-        from: position
+        navbarInnerContainer: pageContainer.f7PageData && pageContainer.f7PageData.navbarInnerContainer,
+        from: position,
+        context: pageContext
     };
     // Before Init Callback
     app.pluginHook('pageBeforeRemove', pageData);
@@ -144,15 +149,18 @@ app.pageRemoveCallback = function (view, pageContainer, position) {
 app.pageBackCallbacks = function (callback, view, params) {
     // Page Data
     var pageContainer = params.pageContainer;
+    var pageContext;
+    if (pageContainer.f7PageData) pageContext = pageContainer.f7PageData.context;
 
     var pageData = {
-        container: params.pageContainer,
+        container: pageContainer,
         name: $(pageContainer).attr('data-page'),
         url: pageContainer.f7PageData && pageContainer.f7PageData.url,
         query: pageContainer.f7PageData && pageContainer.f7PageData.query,
         view: view,
         from: params.position,
-        context: params.context,
+        context: pageContext,
+        navbarInnerContainer: pageContainer.f7PageData && pageContainer.f7PageData.navbarInnerContainer,
         swipeBack: params.swipeBack
     };
 
@@ -171,23 +179,28 @@ app.pageBackCallbacks = function (callback, view, params) {
     }
 };
 app.pageAnimCallbacks = function (callback, view, params) {
+    var pageContainer = params.pageContainer;
+    var pageContext;
+    if (pageContainer.f7PageData) pageContext = pageContainer.f7PageData.context;
     // Page Data
     var pageData = {
-        container: params.pageContainer,
+        container: pageContainer,
         url: params.url,
-        query: $.parseUrlQuery(params.url || ''),
-        name: $(params.pageContainer).attr('data-page'),
+        query: params.query || $.parseUrlQuery(params.url || ''),
+        name: $(pageContainer).attr('data-page'),
         view: view,
         from: params.position,
-        context: params.context,
-        swipeBack: params.swipeBack
+        context: pageContext,
+        swipeBack: params.swipeBack,
+        navbarInnerContainer: pageContainer.f7PageData && pageContainer.f7PageData.navbarInnerContainer,
+        fromPage: params.fromPage
     };
 
     var oldPage = params.oldPage,
         newPage = params.newPage;
 
     // Update page date
-    params.pageContainer.f7PageData = pageData;
+    pageContainer.f7PageData = pageData;
 
     if (callback === 'after') {
         app.pluginHook('pageAfterAnimation', pageData);
@@ -241,8 +254,9 @@ app.pageAnimCallbacks = function (callback, view, params) {
 
 // Init Page Events and Manipulations
 app.initPage = function (pageContainer) {
+    pageContainer = $(pageContainer);
     // Size navbars on page load
-    if (app.sizeNavbars) app.sizeNavbars($(pageContainer).parents('.' + app.params.viewClass)[0]);
+    if (app.sizeNavbars) app.sizeNavbars(pageContainer.parents('.' + app.params.viewClass)[0]);
     // Init messages
     if (app.initMessages) app.initMessages(pageContainer);
     // Init forms storage
@@ -251,6 +265,7 @@ app.initPage = function (pageContainer) {
     if (app.initSmartSelects) app.initSmartSelects(pageContainer);
     // Init slider
     if (app.initSlider) app.initSlider(pageContainer);
+    if (app.initSwiper) app.initSwiper(pageContainer);
     // Init pull to refres
     if (app.initPullToRefresh) app.initPullToRefresh(pageContainer);
     // Init infinite scroll
@@ -262,11 +277,28 @@ app.initPage = function (pageContainer) {
     // Init scroll toolbars
     if (app.initScrollToolbars) app.initScrollToolbars(pageContainer);
 
+    // Init scroll toolbars
+    if (app.initImagesLazyLoad) app.initImagesLazyLoad(pageContainer);
     app.refreshScroller($(pageContainer).find('.page-content')[0]);
 };
 app.reinitPage = function (pageContainer) {
+    pageContainer = $(pageContainer);
     // Size navbars on page reinit
-    if (app.sizeNavbars) app.sizeNavbars($(pageContainer).parents('.' + app.params.viewClass)[0]);
+    if (app.sizeNavbars) app.sizeNavbars(pageContainer.parents('.' + app.params.viewClass)[0]);
     // Reinit slider
     if (app.reinitSlider) app.reinitSlider(pageContainer);
+    if (app.reinitSwiper) app.reinitSwiper(pageContainer);
+    // Reinit lazy load
+    if (app.reinitLazyLoad) app.reinitLazyLoad(pageContainer);
+};
+app.initPageWithCallback = function (pageContainer) {
+    pageContainer = $(pageContainer);
+    var viewContainer = pageContainer.parents('.' + app.params.viewClass);
+    if (viewContainer.length === 0) return;
+    var view = viewContainer[0].f7View || false;
+    var url = view && view.url ? view.url : false;
+    if (viewContainer) {
+        viewContainer.attr('data-page', pageContainer.attr('data-page') || undefined);
+    }
+    app.pageInitCallback(view, {pageContainer: pageContainer[0], url: url, position: 'center'});
 };

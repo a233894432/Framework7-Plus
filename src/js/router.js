@@ -34,15 +34,11 @@ app.router = {
         // Loading new page
         var removeClasses = 'page-on-center page-on-right page-on-left';
         if (direction === 'to-left') {
-            // leftPage.removeClass('page-on-center').addClass('page-from-center-to-left');
-            // rightPage.removeClass('page-on-left').addClass('page-from-right-to-center');
             leftPage.removeClass(removeClasses).addClass('page-from-center-to-left');
             rightPage.removeClass(removeClasses).addClass('page-from-right-to-center');
         }
         // Go back
         if (direction === 'to-right') {
-            // leftPage.removeClass('page-on-left').addClass('page-from-left-to-center');
-            // rightPage.removeClass('page-on-center').addClass('page-from-center-to-right');
             leftPage.removeClass(removeClasses).addClass('page-from-left-to-center');
             rightPage.removeClass(removeClasses).addClass('page-from-center-to-right');
             
@@ -452,7 +448,9 @@ app.router._load = function (view, options) {
         url: url, 
         position: options.reload ? reloadPosition : 'right', 
         navbarInnerContainer: dynamicNavbar ? newNavbarInner[0] : undefined, 
-        context: t7_rendered.context
+        context: t7_rendered.context,
+        query: options.query,
+        fromPage: oldPage && oldPage.length && oldPage[0].f7PageData
     });
 
     // Navbar init event
@@ -473,17 +471,33 @@ app.router._load = function (view, options) {
     var clientLeft = newPage[0].clientLeft;
 
     // Before Anim Callback
-    app.pageAnimCallbacks('before', view, {pageContainer: newPage[0], url: url, position: 'right', oldPage: oldPage, newPage: newPage, context: t7_rendered.context});
+    app.pageAnimCallbacks('before', view, {
+        pageContainer: newPage[0], 
+        url: url, 
+        position: 'right', 
+        oldPage: oldPage, 
+        newPage: newPage, 
+        query: options.query,
+        fromPage: oldPage && oldPage.length && oldPage[0].f7PageData
+    });
 
     function afterAnimation() {
         view.allowPageChange = true;
         newPage.removeClass('page-from-right-to-center page-on-right').addClass('page-on-center');
         oldPage.removeClass('page-from-center-to-left page-on-center').addClass('page-on-left');
         if (dynamicNavbar) {
-            newNavbarInner.removeClass('navbar-from-right-to-center navbar-on-right').addClass('navbar-on-center');
+            newNavbarInner.removeClass('navbar-from-right-to-center navbar-on-left navbar-on-right').addClass('navbar-on-center');
             oldNavbarInner.removeClass('navbar-from-center-to-left navbar-on-center').addClass('navbar-on-left');
         }
-        app.pageAnimCallbacks('after', view, {pageContainer: newPage[0], url: url, position: 'right', oldPage: oldPage, newPage: newPage, context: t7_rendered.context});
+        app.pageAnimCallbacks('after', view, {
+            pageContainer: newPage[0], 
+            url: url, 
+            position: 'right', 
+            oldPage: oldPage, 
+            newPage: newPage, 
+            query: options.query,
+            fromPage: oldPage && oldPage.length && oldPage[0].f7PageData
+        });
         if (app.params.pushState) app.pushStateClearQueue();
         if (!(view.params.swipeBackPage || view.params.preloadPreviousPage)) {
             if (view.params.domCache) {
@@ -502,25 +516,25 @@ app.router._load = function (view, options) {
             view.refreshPreviousPage();
         }
     }
-
     if (animatePages) {
         // Set pages before animation
         app.router.animatePages(oldPage, newPage, 'to-left', view);
 
         // Dynamic navbar animation
         if (dynamicNavbar) {
-            setTimeout(function () {
+            setTimeout(function() {
                 app.router.animateNavbars(oldNavbarInner, newNavbarInner, 'to-left', view);
             }, 0);
-
         }
         newPage.animationEnd(function (e) {
             afterAnimation();
         });
     }
     else {
+        newNavbarInner.find('.sliding, .sliding .back .icon').transform('');
         afterAnimation();
     }
+
 };
 
 app.router.load = function (view, options) {
@@ -528,6 +542,12 @@ app.router.load = function (view, options) {
     var url = options.url;
     var content = options.content;
     var pageName = options.pageName;
+    if (pageName) {
+        if (pageName.indexOf('?') > 0) {
+            options.query = $.parseUrlQuery(pageName);
+            options.pageName = pageName = pageName.split('?')[0];
+        }
+    }
     var template = options.template;
     if (view.params.reloadPages === true) options.reload = true;
 
@@ -606,14 +626,42 @@ app.router._back = function (view, options) {
 
     // Animation
     function afterAnimation() {
-        app.pageBackCallbacks('after', view, {pageContainer: oldPage[0], url: url, position: 'center', oldPage: oldPage, newPage: newPage, context: t7_rendered.context});
-        app.pageAnimCallbacks('after', view, {pageContainer: newPage[0], url: url, position: 'left', oldPage: oldPage, newPage: newPage, context: t7_rendered.context});
+        app.pageBackCallbacks('after', view, {
+            pageContainer: oldPage[0], 
+            url: url, 
+            position: 'center', 
+            oldPage: oldPage, 
+            newPage: newPage, 
+        });
+        app.pageAnimCallbacks('after', view, {
+            pageContainer: newPage[0], 
+            url: url, 
+            position: 'left', 
+            oldPage: oldPage, 
+            newPage: newPage, 
+            query: options.query,
+            fromPage: oldPage && oldPage.length && oldPage[0].f7PageData
+        });
         app.router.afterBack(view, oldPage[0], newPage[0]);
     }
     function animateBack() {
         // Page before animation callback
-        app.pageBackCallbacks('before', view, {pageContainer: oldPage[0], url: url, position: 'center', oldPage: oldPage, newPage: newPage, context: t7_rendered.context});
-        app.pageAnimCallbacks('before', view, {pageContainer: newPage[0], url: url, position: 'left', oldPage: oldPage, newPage: newPage, context: t7_rendered.context});
+        app.pageBackCallbacks('before', view, {
+            pageContainer: oldPage[0], 
+            url: url, 
+            position: 'center', 
+            oldPage: oldPage, 
+            newPage: newPage, 
+        });
+        app.pageAnimCallbacks('before', view, {
+            pageContainer: newPage[0], 
+            url: url, 
+            position: 'left', 
+            oldPage: oldPage, 
+            newPage: newPage, 
+            query: options.query,
+            fromPage: oldPage && oldPage.length && oldPage[0].f7PageData
+        });
 
         if (animatePages) {
             // Set pages before animation
@@ -747,7 +795,10 @@ app.router._back = function (view, options) {
             url: url, 
             position: 'left', 
             navbarInnerContainer: dynamicNavbar ? newNavbarInner[0] : undefined, 
-            context: t7_rendered.context
+            context: t7_rendered.context,
+            query: options.query,
+            fromPage: oldPage && oldPage.length && oldPage[0].f7PageData,
+            preloadOnly: preloadOnly
         });
         if (dynamicNavbar) {
             app.navbarInitCallback(view, newPage[0], navbar[0], newNavbarInner[0], url, 'right');
@@ -802,7 +853,6 @@ app.router._back = function (view, options) {
         setPages();
         return;
     }
-    
     
     if (!force) {
         // Go back when there is no pages on left
@@ -869,6 +919,12 @@ app.router.back = function (view, options) {
     var url = options.url;
     var content = options.content;
     var pageName = options.pageName;
+    if (pageName) {
+        if (pageName.indexOf('?') > 0) {
+            options.query = $.parseUrlQuery(pageName);
+            options.pageName = pageName = pageName.split('?')[0];
+        }
+    }
     var force = options.force;
     if (!view.allowPageChange) return false;
     view.allowPageChange = false;

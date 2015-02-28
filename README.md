@@ -8,7 +8,7 @@ Framework7-Plus的目标是修复F7在安卓4.0+上的兼容性问题，并且�
 
 ## Framework7-Plus的改动和文档
 F7-Plus影响最大的改动是用[iScroll](https://github.com/cubiq/iscroll)替换了原生的滚动条，但是除了增加了和滚动条相关的API和滚动容器的改变之外，并没有影响其他组件，包括下拉刷新和无限滚动等组件都保持和F7一样的API。滚动条相关的详细改动请参见 [iscroll滚动条](#iscroll)。
-一些基于flexbox布局的组件被修改成了兼容性更好的float布局，svg图标被替换成了iconfont，参见 [其他组件的修改](#other-components)。
+一些基于flexbox布局的组件被修改成了兼容性更好的float布局，参见 [其他组件的修改](#other-components)。
 
 <a name='iscroll'></a>
 ## scroller滚动条
@@ -55,6 +55,7 @@ F7-Plus 在 `pageinit` 的时候会自动初始化一个滚动条，并且把它
 **scroller.refresh()**
 刷新滚动条
 
+
 **scroller.scrollHeight()**
 返回当前滚动内容的高度
 
@@ -67,22 +68,6 @@ F7-Plus 在 `pageinit` 的时候会自动初始化一个滚动条，并且把它
 ## 其他组件的修改
 
 因为一些兼容性的问题，部分组件的CSS做了修改。如果你是从F7迁移的项目，并且定制过下面这些组件的样式，那么需要额外注意。
-
-**图标**
-
-SVG改成了iconfont，能更好兼容安卓手机。svg是通过 `background` 实现的，而iconfont一般是通过 `:before` 或者 `:after` 伪元素实现的。这个修改涉及到所有使用SVG图标的组件：
-- navbar
-- list view
-- media list
-- sortable list
-- checkbox, radio, smart select
-- accordion
-- pull to refresh
-- message
-- preloader
-- searchbar
-- photo browser
-- notification
 
 **grid**
 
@@ -141,9 +126,3 @@ Framework7 内置了一个fast click库，它在处理label的prevent default逻
 关于flexbox的新规范和旧规范，可以参考stackoverflow上的一个问题 [CSS3 Flexbox: display: box vs. flexbox vs. flex](http://stackoverflow.com/questions/16280040/css3-flexbox-display-box-vs-flexbox-vs-flex)
 现在的做法是把基于flexbox布局的grid，改成了基于 `float` 的布局。有一点和以前不一样，以前的布局是固定的15px 间距，现在变成一个百分比。
 另外一个是message组件，他用的也是 flexbox 布局，而flexbox容器的宽度无法完美自适应，已经把flex替换成了float布局。
-
-**background svg 支持不完全**
-
-测试下来，发现在三星 S3上部分背景图标无法显示，原因还不特别清楚，应该是他不支持在input这种特殊的元素上写background svg。现在已经将大部分 svg 图标替换成iconfont，测试没有问题。
-
-上面列出的是测试出的主要问题，很多组件的bug都是由上面这几个问题引发的。还有一些组件内部的零零碎碎的bug，而且肯定还有一些未发现的bug。不过解决完上述主要问题之后，基本可以在4.0以上版本的安卓设备上使用。
