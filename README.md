@@ -10,6 +10,10 @@ Framework7-Plus的目标是修复F7在安卓4.0+上的兼容性问题，并且�
 F7-Plus影响最大的改动是用[iScroll](https://github.com/cubiq/iscroll)替换了原生的滚动条，但是除了增加了和滚动条相关的API和滚动容器的改变之外，并没有影响其他组件，包括下拉刷新和无限滚动等组件都保持和F7一样的API。滚动条相关的详细改动请参见 [iscroll滚动条](#iscroll)。
 一些基于flexbox布局的组件被修改成了兼容性更好的float布局，参见 [其他组件的修改](#other-components)。
 
+Framework7-Plus 暂时是没有官网的，所有改动的地方都在这里列出了，这里没有列出的就是没有做任何修改。所以除了这里列出的几处修改，其它的文档请依然参考官方文档。
+
+**http://framework7.taobao.org/ 仅仅做了翻译，其中用的依然是原版的 F7 代码，如果你想用 Framework7-Plus 的代码，需要clone这个仓库。** 
+
 <a name='iscroll'></a>
 ## scroller滚动条
 为了解决安卓上的滚动兼容性问题，F7-Plus 增加了一个 scroller 对象，这个对象提供了统一的滚动API。它在底层会自动判断系统的版本，对高版本的IOS和安卓使用原生滚动条，否则会使用JS滚动条（参见 [iscroll](https://github.com/cubiq/iscroll))。
