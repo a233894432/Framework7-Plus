@@ -4,7 +4,7 @@
 [Framework7](http://framework7.taobao.org/) 是一个开源免费的框架可以用来开发混合移动应用（原生和HTML混合）或者开发iOS7风格的WEB APP。也可以用来作为原型开发工具，可以迅速创建一个应用的原型。Framework7 的特点是对iOS提供最好的体验，像素级模仿iOS的设计，不过它并不能保证对安卓设备的兼容性。
 Framework7-Plus的目标是修复F7在安卓4.0+上的兼容性问题，并且尽可能不改变现有的API，这样可以方便已经使用F7开发的项目迁移到F7-Plus。
 如果你打算开发一个兼容安卓和iOS设备的Web App，或者你已经基于F7开发完成但是在安卓设备下碰到了很多问题，那么F7-Plus将是你很好的选择。关于如何将 F7项目迁移到F7-Plus，请参见[F7迁移到F7-Plus](#transfer)。如果你对兼容性问题感兴趣，可以参见[Framework7 在安卓上的主要兼容性问题](#compitable)。
-**现在还处在测试阶段，欢迎试用并反馈问题。有任何问题或者建议都可以通过pull request/issue形式提交，或者直接发邮件给我 hongxun.lhx@alibaba-inc.com**
+**现在还处在测试阶段，欢迎试用并反馈问题。有任何问题或者建议都可以通过pull request/issue形式提交，或者直接发邮件给我 lihongxun945@gmail.com （或者 lihongxun945@163.com)**
 
 ## Framework7-Plus的改动和文档
 F7-Plus影响最大的改动是用[iScroll](https://github.com/cubiq/iscroll)替换了原生的滚动条，但是除了增加了和滚动条相关的API和滚动容器的改变之外，并没有影响其他组件，包括下拉刷新和无限滚动等组件都保持和F7一样的API。滚动条相关的详细改动请参见 [iscroll滚动条](#iscroll)。
