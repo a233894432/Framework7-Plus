@@ -131,4 +131,12 @@ Framework7 内置了一个fast click库，它在处理label的prevent default逻
 现在的做法是把基于flexbox布局的grid，改成了基于 `float` 的布局。有一点和以前不一样，以前的布局是固定的15px 间距，现在变成一个百分比。
 另外一个是message组件，他用的也是 flexbox 布局，而flexbox容器的宽度无法完美自适应，已经把flex替换成了float布局。
 
+**SVG 背景图片的bug **
+
+在 安卓 4.2.1 以及 安卓 4.2.2 的webview容器中，SVG 背景的支持有bug，如果同时使用SVG背景图片和 `background-size` ，则 `background-size` 不生效，导致背景图片太大而显示错误。解决方法是替换成 png 格式的背景图片。目前在下列几个组件中存在问题：
+
+- list 中的箭头，**已修复**
+- sortable 中的排序icon， **已修复**
+
+
 **更新到 v1.0.2。因为新版本用 `before` 和 `after` 伪元素实现了一像素的边框，和iconfont背景图标有冲突，所以恢复了svg作为背景图标。**
