@@ -3,31 +3,26 @@
 @modalButonColor : @blue;
 @modalButonBg: @modalBgColor;
 @modalButonActiveBg:#d4d4d4;
-@modalDuration:300ms;
+@modalDuration:400ms;
 @actionsModalDuration:300ms;
 @actionsModalButtonBg: rgba(243,243,243,0.95);
 @actionsModalActiveButtonBg:#dcdcdc;
 @popoverBg: rgba(255,255,255,0.95);
-@popupDuration: 300ms;
+@popupDuration: 400ms;
 .modal-overlay, .preloader-indicator-overlay, .popup-overlay {
     position: absolute;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    background: black;
+    background: rgba(0,0,0,0.4);
     z-index: 10600;
-    display: none;
+    visibility: hidden;
     opacity: 0;
     .transition(@modalDuration);
-    -webkit-transition-property: opacity;
-    transition-property: opacity;
     &.modal-overlay-visible {
         visibility: visible;
         opacity: 1;
-    }
-    &.modal-overlay-show {
-        display: block;
     }
 }
 .popup-overlay {
@@ -449,11 +444,6 @@ html.with-statusbar-overlay {
 .modal .preloader {
     width: 34px;
     height: 34px;
-    &:after {
-        font-size: 30px;
-        height: 34px;
-        line-height: 34px;
-    }
 }
 .preloader-indicator-overlay {
     visibility: visible;
@@ -474,11 +464,6 @@ html.with-statusbar-overlay {
         display: block;
         width: 34px;
         height: 34px;
-        &:after {
-            font-size: 34px;
-            height: 34px;
-            line-height: 34px;
-        }
     }
 }
 
