@@ -26,6 +26,7 @@ app.initImagesLazyLoad = function (pageContainer) {
         pageContent = pageContainer.find('.page-content');
     }
     if (pageContent.length === 0) return;
+    var scroller = app.getScroller(pageContent);
 
     // Placeholder
     var placeholderSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEXCwsK592mkAAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg==';
@@ -104,7 +105,7 @@ app.initImagesLazyLoad = function (pageContainer) {
         var method = destroy ? 'off' : 'on';
         lazyLoadImages[method]('lazy', lazyHandler);
         pageContent[method]('lazy', lazyHandler);
-        pageContent[method]('scroll', lazyHandler);
+        scroller.on('scroll', lazyHandler);
         $(window)[method]('resize', lazyHandler);
     }
     function detachEvents() {
