@@ -91,22 +91,15 @@ i.ks-tabbar-icon-4 {
 }
 .ks-demo-slider {
   width: 100%;
-  height: 390px;
+  height: 100%;
 }
-@media all and (min-height: 560px) {
-  .ks-demo-slider {
-    height: 485px;
-  }
+[data-page*='swiper-'] .page-content-inner {
+  height: 100%;
+  box-sizing: content-box;
 }
-@media all and (min-height: 640px) {
-  .ks-demo-slider {
-    height: 558px;
-  }
-}
-@media all and (min-height: 666px) {
-  .ks-demo-slider {
-    height: 585px;
-  }
+[data-page="swiper-multiple"] .page-content-inner {
+  height: auto;
+  box-sizing: border-box;
 }
 .ks-demo-slider,
 .ks-carousel-slider {

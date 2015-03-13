@@ -95,26 +95,19 @@ i.ks-tabbar-icon-4 {
 // Demo Slider
 .ks-demo-slider {
     width: 100%;
-    height: 390px;
+    height: 100%;
 }
-@media all and (min-height: 560px) {
-  //iphone 5
-  .ks-demo-slider {
-    height: 485px;
-  }
+
+//fix page-content-inner-height
+[data-page*='swiper-'] .page-content-inner {
+  height: 100%;
+  box-sizing: content-box;
 }
-@media all and (min-height: 640px) {
-  //nexus
-  .ks-demo-slider {
-    height: 558px;
-  }
+[data-page="swiper-multiple"] .page-content-inner {
+  height: auto;
+  box-sizing: border-box;
 }
-@media all and (min-height: 666px) {
-  //ipone6
-  .ks-demo-slider {
-    height: 585px;
-  }
-}
+
 .ks-demo-slider, .ks-carousel-slider{
     font-size: 25px;
     font-weight: 300;
