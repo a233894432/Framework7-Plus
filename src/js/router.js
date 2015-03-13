@@ -447,7 +447,8 @@ app.router._load = function (view, options) {
         pageContainer: newPage[0], 
         url: url, 
         position: options.reload ? reloadPosition : 'right', 
-        navbarInnerContainer: dynamicNavbar ? newNavbarInner[0] : undefined, 
+        navbarInnerContainer: dynamicNavbar ? newNavbarInner && newNavbarInner[0] : undefined, 
+        oldNavbarInnerContainer: dynamicNavbar ? oldNavbarInner && oldNavbarInner[0] : undefined,
         context: t7_rendered.context,
         query: options.query,
         fromPage: oldPage && oldPage.length && oldPage[0].f7PageData
@@ -483,11 +484,11 @@ app.router._load = function (view, options) {
 
     function afterAnimation() {
         view.allowPageChange = true;
-        newPage.removeClass('page-from-right-to-center page-on-right').addClass('page-on-center');
-        oldPage.removeClass('page-from-center-to-left page-on-center').addClass('page-on-left');
+        newPage.removeClass('page-from-right-to-center page-on-right page-on-left').addClass('page-on-center');
+        oldPage.removeClass('page-from-center-to-left page-on-center page-on-right').addClass('page-on-left');
         if (dynamicNavbar) {
             newNavbarInner.removeClass('navbar-from-right-to-center navbar-on-left navbar-on-right').addClass('navbar-on-center');
-            oldNavbarInner.removeClass('navbar-from-center-to-left navbar-on-center').addClass('navbar-on-left');
+            oldNavbarInner.removeClass('navbar-from-center-to-left navbar-on-center navbar-on-right').addClass('navbar-on-left');
         }
         app.pageAnimCallbacks('after', view, {
             pageContainer: newPage[0], 
@@ -531,7 +532,7 @@ app.router._load = function (view, options) {
         });
     }
     else {
-        newNavbarInner.find('.sliding, .sliding .back .icon').transform('');
+        if (dynamicNavbar) newNavbarInner.find('.sliding, .sliding .back .icon').transform('');
         afterAnimation();
     }
 
@@ -679,7 +680,7 @@ app.router._back = function (view, options) {
             });
         }
         else {
-            newNavbarInner.find('.sliding, .sliding .back .icon').transform('');
+            if (dynamicNavbar) newNavbarInner.find('.sliding, .sliding .back .icon').transform('');
             afterAnimation();
         }
     }
@@ -795,6 +796,7 @@ app.router._back = function (view, options) {
             url: url, 
             position: 'left', 
             navbarInnerContainer: dynamicNavbar ? newNavbarInner[0] : undefined, 
+            oldNavbarInnerContainer: dynamicNavbar ? oldNavbarInner && oldNavbarInner[0] : undefined,
             context: t7_rendered.context,
             query: options.query,
             fromPage: oldPage && oldPage.length && oldPage[0].f7PageData,

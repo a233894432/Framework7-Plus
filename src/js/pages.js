@@ -91,6 +91,9 @@ app.pageInitCallback = function (view, params) {
         navbarInnerContainer: params.navbarInnerContainer,
         fromPage: params.fromPage
     };
+    if (params.fromPage && !params.fromPage.navbarInnerContainer && params.oldNavbarInnerContainer) {
+        params.fromPage.navbarInnerContainer = params.oldNavbarInnerContainer;
+    }
 
     if (pageContainer.f7PageInitialized && view.params.domCache) {
         // Reinit Page
@@ -258,22 +261,21 @@ app.initPage = function (pageContainer) {
     // Size navbars on page load
     if (app.sizeNavbars) app.sizeNavbars(pageContainer.parents('.' + app.params.viewClass)[0]);
     // Init messages
-    if (app.initMessages) app.initMessages(pageContainer);
+    if (app.initPageMessages) app.initPageMessages(pageContainer);
     // Init forms storage
     if (app.initFormsStorage) app.initFormsStorage(pageContainer);
     // Init smart select
     if (app.initSmartSelects) app.initSmartSelects(pageContainer);
     // Init slider
-    if (app.initSlider) app.initSlider(pageContainer);
-    if (app.initSwiper) app.initSwiper(pageContainer);
+    if (app.initPageSwiper) app.initPageSwiper(pageContainer);
     // Init pull to refres
     if (app.initPullToRefresh) app.initPullToRefresh(pageContainer);
     // Init infinite scroll
     if (app.initInfiniteScroll) app.initInfiniteScroll(pageContainer);
     // Init searchbar
-    if (app.initSearchbar) app.initSearchbar(pageContainer);
+    if (app.initPageSearchbar) app.initPageSearchbar(pageContainer);
     // Init message bar
-    if (app.initMessagebar) app.initMessagebar(pageContainer);
+    if (app.initPageMessagebar) app.initPageMessagebar(pageContainer);
     // Init scroll toolbars
     if (app.initScrollToolbars) app.initScrollToolbars(pageContainer);
 
@@ -286,8 +288,7 @@ app.reinitPage = function (pageContainer) {
     // Size navbars on page reinit
     if (app.sizeNavbars) app.sizeNavbars(pageContainer.parents('.' + app.params.viewClass)[0]);
     // Reinit slider
-    if (app.reinitSlider) app.reinitSlider(pageContainer);
-    if (app.reinitSwiper) app.reinitSwiper(pageContainer);
+    if (app.reinitPageSwiper) app.reinitPageSwiper(pageContainer);
     // Reinit lazy load
     if (app.reinitLazyLoad) app.reinitLazyLoad(pageContainer);
 };
