@@ -10,11 +10,7 @@
  * 
  * Licensed under MIT
  * 
-<<<<<<< HEAD
- * Released on: March 4, 2015
-=======
- * Released on: March 8, 2015
->>>>>>> v1.0.3
+ * Released on: March 13, 2015
  */
 (function () {
 
@@ -2340,7 +2336,10 @@
             if(!$pageContentInner[0]) {
               $pageContent.html('<div class="page-content-inner">'+ $pageContent.html() + '</div>');
             }
-            $pageContent.find('.page-content-inner').css('min-height', ($(window).height()+20)+'px');
+            if($pageContent.hasClass('pull-to-refresh-content')) {
+              //因为iscroll 当页面高度不足 100% 时无法滑动，所以无法触发下拉动作，这里改动一下高度
+              $pageContent.find('.page-content-inner').css('min-height', ($(window).height()+20)+'px');
+            }
             
             var scroller = new Scroller(pageContent, app.params.scroller);
             pageContent.scroller = scroller;
@@ -3269,15 +3268,12 @@
                 if (s.isVirtualList) {
                     virtualList.filterItems(foundItems);
                 }
-<<<<<<< HEAD
-                app.getScroller(pageContainer.find('.page-content')).refresh().scrollTop(0);
-=======
+                app.getScroller(s.pageContainer.find('.page-content')).refresh().scrollTop(0);
             };
         
             // Events
             function preventSubmit(e) {
                 e.preventDefault();
->>>>>>> v1.0.3
             }
         
             s.attachEvents = function (destroy) {
@@ -3329,6 +3325,7 @@
             }
                 
         };
+        
 
         /*======================================================
         ************   Messagebar   ************
@@ -5807,6 +5804,7 @@
                 pageContent = pageContainer.find('.page-content');
             }
             if (pageContent.length === 0) return;
+            var scroller = app.getScroller(pageContent);
         
             // Placeholder
             var placeholderSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEXCwsK592mkAAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg==';
@@ -5882,7 +5880,7 @@
                 var method = destroy ? 'off' : 'on';
                 lazyLoadImages[method]('lazy', lazyHandler);
                 pageContent[method]('lazy', lazyHandler);
-                pageContent[method]('scroll', lazyHandler);
+                scroller.on('scroll', lazyHandler);
                 $(window)[method]('resize', lazyHandler);
             }
             function detachEvents() {
@@ -5918,6 +5916,7 @@
                 pageContainer.trigger('lazy');
             }
         };
+        
 
         /*======================================================
         ************   Messages   ************

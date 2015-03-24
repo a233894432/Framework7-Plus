@@ -12,7 +12,8 @@ var Searchbar = function (container, params) {
         found: null,
         notFound: null,
         overlay: null,
-        ignore: '.searchbar-ignore'
+        ignore: '.searchbar-ignore',
+        customSearch: false
     };
     params = params || {};
     for (var def in defaults) {
@@ -41,6 +42,7 @@ var Searchbar = function (container, params) {
 
     // Search List
     s.searchList = $(s.params.searchList);
+    s.ul = s.searchList.children('ul');
 
     // Is Virtual List
     s.isVirtualList = s.searchList.hasClass('virtual-list');
@@ -72,9 +74,17 @@ var Searchbar = function (container, params) {
     // Cancel button
     var cancelMarginProp = app.rtl ? 'margin-left' : 'margin-right';
     if (s.cancelButton.length > 0) {
-        s.cancelButton.show();
+        s.cancelButton.transition(0).show();
         s.cancelButton.css(cancelMarginProp, -s.cancelButton[0].offsetWidth + 'px');
+        setTimeout(function () {
+            s.cancelButton.transition('');    
+        }, 0);
     }
+
+    s.triggerEvent = function (eventName, eventData) {
+        s.container.trigger(eventName, eventData);
+        if (s.searchList.length > 0) s.searchList.trigger(eventName, eventData);
+    };
 
     // Enable/disalbe
     s.enable = function () {
@@ -82,7 +92,7 @@ var Searchbar = function (container, params) {
             if (s.searchList.length && !s.container.hasClass('searchbar-active')) s.overlay.addClass('searchbar-overlay-active');
             s.container.addClass('searchbar-active');
             if (s.cancelButton.length > 0) s.cancelButton.css(cancelMarginProp, '0px');
-            s.searchList.trigger('enableSearch');
+            s.triggerEvent('enableSearch');
             s.active = true;
         }
         if (app.device.ios) {
@@ -103,7 +113,7 @@ var Searchbar = function (container, params) {
         if (s.searchList.length) s.overlay.removeClass('searchbar-overlay-active');
         function _disable() {
             s.input.blur();
-            s.searchList.trigger('disableSearch');
+            s.triggerEvent('disableSearch');
             s.active = false;
         }
         if (app.device.ios) {
@@ -119,7 +129,7 @@ var Searchbar = function (container, params) {
     // Clear
     s.clear = function () {
         s.input.val('').trigger('change').focus();
-        s.searchList.trigger('clearSearch');
+        s.triggerEvent('clearSearch');
     };
 
     // Search
@@ -154,6 +164,11 @@ var Searchbar = function (container, params) {
             if (s.searchList.length && s.container.hasClass('searchbar-active')) s.overlay.removeClass('searchbar-overlay-active');
         }
 
+        if (s.params.externalSearch) {
+            s.triggerEvent('search', {query: query});
+            return;
+        }
+
         var values = query.trim().toLowerCase().split(' ');
         var foundItems = [];
         if (s.isVirtualList) {
@@ -176,15 +191,19 @@ var Searchbar = function (container, params) {
             }
         }
         else {
-            s.searchList.find('li').removeClass('hidden-by-searchbar').each(function (index, el) {
+            if (s.ul.length === 0) {
+                s.ul = s.searchList.children('ul');
+            }
+            s.ul.children('li').removeClass('hidden-by-searchbar').each(function (index, el) {
                 el = $(el);
-                var compareWithEl = el.find(s.params.searchIn);
-                if (compareWithEl.length === 0) return;
-                var compareWith;
-                compareWith = compareWithEl.text().trim().toLowerCase();
+                var compareWithText = [];
+                el.find(s.params.searchIn).each(function () {
+                    compareWithText.push($(this).text().trim().toLowerCase());
+                });
+                compareWithText = compareWithText.join(' ');
                 var wordsMatch = 0;
                 for (var i = 0; i < values.length; i++) {
-                    if (compareWith.indexOf(values[i]) >= 0) wordsMatch++;
+                    if (compareWithText.indexOf(values[i]) >= 0) wordsMatch++;
                 }
                 if (wordsMatch !== values.length && !(s.params.ignore && el.is(s.params.ignore))) {
                     el.addClass('hidden-by-searchbar');
@@ -225,7 +244,7 @@ var Searchbar = function (container, params) {
                 });
             }
         }
-        s.searchList.trigger('search', {query: query, foundItems: foundItems});
+        s.triggerEvent('search', {query: query, foundItems: foundItems});
         if (foundItems.length === 0) {
             s.notFound.show();
             s.found.hide();

@@ -38,6 +38,9 @@ var View = function (selector, params) {
     var container = $(selector);
     view.container = container[0];
 
+    // Is main
+    view.main = container.hasClass(app.params.viewMainClass);
+
     // Content cache
     view.contentCache = {};
 
@@ -75,7 +78,7 @@ var View = function (selector, params) {
     var viewURL = docLocation;
     var pushStateSeparator = app.params.pushStateSeparator;
     var pushStateRoot = app.params.pushStateRoot;
-    if (app.params.pushState) {
+    if (app.params.pushState && view.main) {
         if (pushStateRoot) {
             viewURL = pushStateRoot;
         }
@@ -117,9 +120,6 @@ var View = function (selector, params) {
     if (view.url) {
         view.history.push(view.url);
     }
-
-    // Is main
-    view.main = container.hasClass(app.params.viewMainClass);
 
     // Touch events
     var isTouched = false,
@@ -209,6 +209,11 @@ var View = function (selector, params) {
                     activeNavBackIcon = activeNavbar.find('.left.sliding .back .icon');
                     previousNavBackIcon = previousNavbar.find('.left.sliding .back .icon');
                 }
+            }
+
+            // Close/Hide Any Picker
+            if ($('.picker-modal.modal-in').length > 0) {
+                app.closeModal($('.picker-modal.modal-in'));
             }
         }
         e.f7PreventPanelSwipe = true;
@@ -369,7 +374,7 @@ var View = function (selector, params) {
             allowViewTouchMove = true;
             view.allowPageChange = true;
             if (pageChanged) {
-                if (app.params.pushState) history.back();
+                if (app.params.pushState && view.main) history.back();
                 // Page after animation callback
                 app.pageBackCallbacks('after', view, {pageContainer: activePage[0], url: url, position: 'center', newPage: previousPage, oldPage: activePage, swipeBack: true});
                 app.pageAnimCallbacks('after', view, {pageContainer: previousPage[0], url: url, position: 'left', newPage: previousPage, oldPage: activePage, swipeBack: true});
@@ -532,4 +537,40 @@ var View = function (selector, params) {
 
 app.addView = function (selector, params) {
     return new View(selector, params);
+};
+
+app.getCurrentView = function (index) {
+    var popoverView = $('.popover.modal-in .view');
+    var popupView = $('.popup.modal-in .view');
+    var panelView = $('.panel.active .view');
+    var appViews = $('.views');
+    // Find active view as tab
+    var appView = appViews.children('.view');
+    // Propably in tabs or split view
+    if (appView.length > 1) {
+        if (appView.hasClass('tab')) {
+            // Tabs
+            appView = appViews.children('.view.active');
+        }
+        else {
+            // Split View, leave appView intact
+        }
+    }
+    if (popoverView.length > 0 && popoverView[0].f7View) return popoverView[0].f7View;
+    if (popupView.length > 0 && popupView[0].f7View) return popupView[0].f7View;
+    if (panelView.length > 0 && panelView[0].f7View) return panelView[0].f7View;
+    if (appView.length > 0) {
+        if (appView.length === 1 && appView[0].f7View) return appView[0].f7View;
+        if (appView.length > 1) {
+            var currentViews = [];
+            for (var i = 0; i < appView.length; i++) {
+                if (appView[i].f7View) currentViews.push(appView[i].f7View);
+            }
+            if (currentViews.length > 0 && typeof index !== 'undefined') return currentViews[index];
+            if (currentViews.length > 1) return currentViews;
+            if (currentViews.length === 1) return currentViews[0];
+            return undefined;
+        }
+    }
+    return undefined;
 };

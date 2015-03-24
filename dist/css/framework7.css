@@ -10,11 +10,7 @@
  * 
  * Licensed under MIT
  * 
-<<<<<<< HEAD
- * Released on: March 4, 2015
-=======
- * Released on: March 8, 2015
->>>>>>> v1.0.3
+ * Released on: March 13, 2015
  */
 html,
 body {
@@ -553,7 +549,7 @@ html.android .swipeback-page-shadow {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
-  min-height: 101%;
+  min-height: 100%;
   border-top: 1px solid transparent;
   margin-top: -1px;
 }
@@ -2148,8 +2144,8 @@ html.ios-gt-6.pixel-ratio-3 .list-block .item-inner:after {
 }
 .list-block .item-link .item-inner {
   padding-right: 35px;
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20viewBox%3D'0%200%2060%20120'%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%3E%3Cpath%20d%3D'm60%2061.5-38.25%2038.25-9.75-9.75%2029.25-28.5-29.25-28.5%209.75-9.75z'%20fill%3D'%23c7c7cc'%2F%3E%3C%2Fsvg%3E");
-  background-size: 10px 20px;
+  background-image: url("../img/i-list-chevron-right.png");
+  background-size: 10px;
   background-repeat: no-repeat;
   background-position: 95% center;
   background-position: -webkit-calc(100% - 15px) center;
@@ -2348,8 +2344,8 @@ html.ios-gt-6.pixel-ratio-3 .list-block .item-link.list-button:after {
 .list-block li.media-item .item-link .item-title-row {
   padding-right: 20px;
   background: no-repeat right center;
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20viewBox%3D'0%200%2060%20120'%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%3E%3Cpath%20d%3D'm60%2061.5-38.25%2038.25-9.75-9.75%2029.25-28.5-29.25-28.5%209.75-9.75z'%20fill%3D'%23c7c7cc'%2F%3E%3C%2Fsvg%3E");
-  background-size: 10px 20px;
+  background-image: url("../img/i-list-chevron-right.png");
+  background-size: 8px;
 }
 .list-block.media-list .item-media,
 .list-block li.media-item .item-media {
@@ -2435,9 +2431,9 @@ html.ios-gt-6.pixel-ratio-3 .list-block .list-group-title:before {
   z-index: 10;
   background-repeat: no-repeat;
   background-size: 18px 12px;
+  background-image: url("../img/i-sortable-handler.png");
   background-position: center;
   width: 35px;
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2018%2012'%20fill%3D'%23c7c7cc'%3E%3Cpath%20d%3D'M0%2C2V0h22v2H0z'%2F%3E%3Cpath%20d%3D'M0%2C7V5h22v2H0z'%2F%3E%3Cpath%20d%3D'M0%2C12v-2h22v2H0z'%2F%3E%3C%2Fsvg%3E");
   opacity: 0;
   visibility: hidden;
   right: 0;
@@ -3210,25 +3206,18 @@ html.ios-gt-6.pixel-ratio-3 .card-footer:before {
   top: 0;
   width: 100%;
   height: 100%;
-  background: black;
+  background: rgba(0, 0, 0, 0.4);
   z-index: 10600;
-  display: none;
+  visibility: hidden;
   opacity: 0;
-  -webkit-transition-duration: 300ms;
-  transition-duration: 300ms;
-  -webkit-transition-property: opacity;
-  transition-property: opacity;
+  -webkit-transition-duration: 400ms;
+  transition-duration: 400ms;
 }
 .modal-overlay.modal-overlay-visible,
 .preloader-indicator-overlay.modal-overlay-visible,
 .popup-overlay.modal-overlay-visible {
   visibility: visible;
   opacity: 1;
-}
-.modal-overlay.modal-overlay-show,
-.preloader-indicator-overlay.modal-overlay-show,
-.popup-overlay.modal-overlay-show {
-  display: block;
 }
 .popup-overlay {
   z-index: 10200;
@@ -3256,16 +3245,16 @@ html.ios-gt-6.pixel-ratio-3 .card-footer:before {
 }
 .modal.modal-in {
   opacity: 1;
-  -webkit-transition-duration: 300ms;
-  transition-duration: 300ms;
+  -webkit-transition-duration: 400ms;
+  transition-duration: 400ms;
   -webkit-transform: translate3d(0, 0, 0) scale(1);
   transform: translate3d(0, 0, 0) scale(1);
 }
 .modal.modal-out {
   opacity: 0;
   z-index: 10999;
-  -webkit-transition-duration: 300ms;
-  transition-duration: 300ms;
+  -webkit-transition-duration: 400ms;
+  transition-duration: 400ms;
   -webkit-transform: translate3d(0, 0, 0) scale(0.815);
   transform: translate3d(0, 0, 0) scale(0.815);
 }
@@ -3768,8 +3757,8 @@ html.ios-gt-6.pixel-ratio-3 .actions-popover-label:after {
 .login-screen.modal-in,
 .popup.modal-out,
 .login-screen.modal-out {
-  -webkit-transition-duration: 300ms;
-  transition-duration: 300ms;
+  -webkit-transition-duration: 400ms;
+  transition-duration: 400ms;
 }
 .popup.modal-in,
 .login-screen.modal-in {
@@ -3825,11 +3814,6 @@ html.with-statusbar-overlay .popup.tablet-fullscreen {
   width: 34px;
   height: 34px;
 }
-.modal .preloader:after {
-  font-size: 30px;
-  height: 34px;
-  line-height: 34px;
-}
 .preloader-indicator-overlay {
   visibility: visible;
   opacity: 0;
@@ -3850,11 +3834,6 @@ html.with-statusbar-overlay .popup.tablet-fullscreen {
   display: block;
   width: 34px;
   height: 34px;
-}
-.preloader-indicator-modal .preloader:after {
-  font-size: 34px;
-  height: 34px;
-  line-height: 34px;
 }
 .picker-modal {
   position: absolute;

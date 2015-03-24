@@ -219,7 +219,7 @@ var VirtualList = function (listBlock, params) {
 
         if (vl.params.onItemsBeforeInsert) vl.params.onItemsBeforeInsert(vl, vl.fragment);
         vl.ul[0].appendChild(vl.fragment);
-        if (vl.params.onItemsAfterInsert) vl.params.onFragmentAfterInsert(vl, vl.fragment);
+        if (vl.params.onItemsAfterInsert) vl.params.onItemsAfterInsert(vl, vl.fragment);
         app.getScroller().refresh();
 
         if (typeof forceScrollTop !== 'undefined' && force) {

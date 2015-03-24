@@ -13,6 +13,7 @@ var Picker = function (params) {
         scrollToInput: true,
         inputReadOnly: true,
         convertToPopover: true,
+        onlyInPopover: false,
         toolbar: true,
         toolbarCloseText: 'Done',
         toolbarTemplate: 
@@ -44,13 +45,16 @@ var Picker = function (params) {
     // Should be converted to popover
     function isPopover() {
         var toPopover = false;
-        if (!p.params.convertToPopover) return toPopover;
+        if (!p.params.convertToPopover && !p.params.onlyInPopover) return toPopover;
         if (!p.inline && p.params.input) {
-            if (app.device.ios) {
-                toPopover = app.device.ipad ? true : false;
-            }
+            if (p.params.onlyInPopover) toPopover = true;
             else {
-                if ($(window).width() >= 768) toPopover = true;
+                if (app.device.ios) {
+                    toPopover = app.device.ipad ? true : false;
+                }
+                else {
+                    if ($(window).width() >= 768) toPopover = true;
+                }
             }
         } 
         return toPopover; 
@@ -106,6 +110,7 @@ var Picker = function (params) {
         var i, j;
         var wrapperHeight, itemHeight, itemsHeight, minTranslate, maxTranslate;
         col.replaceValues = function (values, displayValues) {
+            col.destroyEvents();
             col.values = values;
             col.displayValues = displayValues;
             var newItemsHTML = p.columnHTML(col, true);
@@ -113,6 +118,7 @@ var Picker = function (params) {
             col.items = col.wrapper.find('.picker-item');
             col.calcSize();
             col.setValue(col.values[0], 0, true);
+            col.initEvents();
         };
         col.calcSize = function () {
             if (p.params.rotateEffect) {
@@ -352,17 +358,22 @@ var Picker = function (params) {
             col.setValue(value);
         }
 
-        col.container.on(app.touchEvents.start, handleTouchStart);
-        col.container.on(app.touchEvents.move, handleTouchMove);
-        col.container.on(app.touchEvents.end, handleTouchEnd);
-        col.items.on('click', handleClick);
+        col.initEvents = function (detach) {
+            var method = detach ? 'off' : 'on';
+            col.container[method](app.touchEvents.start, handleTouchStart);
+            col.container[method](app.touchEvents.move, handleTouchMove);
+            col.container[method](app.touchEvents.end, handleTouchEnd);
+            col.items[method]('click', handleClick);
+        };
+        col.destroyEvents = function () {
+            col.initEvents(true);
+        };
 
         col.container[0].f7DestroyPickerCol = function () {
-            col.container.off(app.touchEvents.start, handleTouchStart);
-            col.container.off(app.touchEvents.move, handleTouchMove);
-            col.container.off(app.touchEvents.end, handleTouchEnd);
-            col.items.off('click', handleClick);
+            col.destroyEvents();
         };
+
+        col.initEvents();
 
     };
     p.destroyPickerCol = function (colContainer) {
