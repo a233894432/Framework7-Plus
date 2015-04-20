@@ -189,7 +189,7 @@ app.actions = function (target, params) {
     }
     var modalHTML;
     if (toPopover) {
-        var actionsPopoverTemplate = 
+        var actionsToPopoverTemplate = app.params.modalActionsToPopoverTemplate || 
             '<div class="popover actions-popover">' +
               '<div class="popover-inner">' +
                 '{{#each this}}' +
@@ -199,7 +199,7 @@ app.actions = function (target, params) {
                     '{{#if label}}' +
                     '<li class="actions-popover-label {{#if color}}color-{{color}}{{/if}} {{#if bold}}actions-popover-bold{{/if}}">{{text}}</li>' +
                     '{{else}}' +
-                    '<li><a href="#" class="item-link list-button {{#if color}}color-{{color}}{{/if}} {{#if bg}}bg-{{bg}}{{/if}} {{#if bold}}actions-popover-bold{{/if}}">{{text}}</a></li>' +
+                    '<li><a href="#" class="item-link list-button {{#if color}}color-{{color}}{{/if}} {{#if bg}}bg-{{bg}}{{/if}} {{#if bold}}actions-popover-bold{{/if}} {{#if disabled}}disabled{{/if}}">{{text}}</a></li>' +
                     '{{/if}}' +
                     '{{/each}}' +
                   '</ul>' +
@@ -207,10 +207,10 @@ app.actions = function (target, params) {
                 '{{/each}}' +
               '</div>' +
             '</div>';
-        if (!app._compiledTemplates.actionsPopover) {
-            app._compiledTemplates.actionsPopover = t7.compile(actionsPopoverTemplate);
+        if (!app._compiledTemplates.actionsToPopover) {
+            app._compiledTemplates.actionsToPopover = t7.compile(actionsToPopoverTemplate);
         }
-        var popoverHTML = app._compiledTemplates.actionsPopover(params);
+        var popoverHTML = app._compiledTemplates.actionsToPopover(params);
         modal = $(app.popover(popoverHTML, target, true));
         groupSelector = '.list-block ul';
         buttonSelector = '.list-button';
@@ -230,6 +230,7 @@ app.actions = function (target, params) {
                     if (button.bold) buttonClass += ' actions-modal-button-bold';
                     if (button.color) buttonClass += ' color-' + button.color;
                     if (button.bg) buttonClass += ' bg-' + button.bg;
+                    if (button.disabled) buttonClass += ' disabled';
                     buttonsHTML += '<span class="' + buttonClass + '">' + button.text + '</span>';
                     if (j === params[i].length - 1) buttonsHTML += '</div>';
                 }

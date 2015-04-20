@@ -62,6 +62,7 @@ Dom7.prototype = {
         for (var i = 0; i < this.length; i++) {
             this[i].removeAttribute(attr);
         }
+        return this;
     },
     prop: function (props, value) {
         if (arguments.length === 1 && typeof props === 'string') {
@@ -120,7 +121,7 @@ Dom7.prototype = {
                 for (var i = 0; i < el.attributes.length; i++) {
                     var attr = el.attributes[i];
                     if (attr.name.indexOf('data-') >= 0) {
-                        dataset[$.camelCase(attr.name.split('data-')[1])] = attr.value;
+                        dataset[$.toCamelCase(attr.name.split('data-')[1])] = attr.value;
                     }
                 }
             }
@@ -386,7 +387,7 @@ Dom7.prototype = {
         }
         return this;
     },
-    
+
     //Dom manipulation
     each: function (callback) {
         for (var i = 0; i < this.length; i++) {
@@ -419,7 +420,7 @@ Dom7.prototype = {
         }
     },
     is: function (selector) {
-        if (!this[0]) return false;
+        if (!this[0] || typeof selector === 'undefined') return false;
         var compareWith, i;
         if (typeof selector === 'string') {
             var el = this[0];
@@ -450,7 +451,7 @@ Dom7.prototype = {
             }
             return false;
         }
-        
+
     },
     indexOf: function (el) {
         for (var i = 0; i < this.length; i++) {

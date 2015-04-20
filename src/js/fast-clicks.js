@@ -11,7 +11,7 @@ app.initFastClicks = function () {
         window.addEventListener('touchstart', function () {});
     }
 
-    var touchStartX, touchStartY, touchStartTime, targetElement, trackClick, activeSelection, scrollParent, lastClickTime, isMoved;
+    var touchStartX, touchStartY, touchStartTime, targetElement, trackClick, activeSelection, scrollParent, lastClickTime, isMoved, tapHoldFired, tapHoldTimeout;
     var activableElement, activeTimeout, needsFastClick, needsFastClickTimeOut;
 
     function findActivableElement(e) {
@@ -49,9 +49,13 @@ app.initFastClicks = function () {
     function removeActive(el) {
         activableElement.removeClass('active-state');
     }
-
+    function isFormElement(el) {
+        var nodes = ('input select textarea label').split(' ');
+        if (el.nodeName && nodes.indexOf(el.nodeName.toLowerCase()) >= 0) return true;
+        return false;
+    }
     function androidNeedsBlur(el) {
-        var noBlur = ('button checkbox file image radio submit input textarea').split(' ');
+        var noBlur = ('button input textarea select').split(' ');
         if (document.activeElement && el !== document.activeElement && document.activeElement !== document.body) {
             if (noBlur.indexOf(el.nodeName.toLowerCase()) >= 0) {
                 return false;
@@ -118,8 +122,17 @@ app.initFastClicks = function () {
     // Touch Handlers
     function handleTouchStart(e) {
         isMoved = false;
+        tapHoldFired = false;
         if (e.targetTouches.length > 1) {
             return true;
+        }
+        if (app.params.tapHold) {
+            if (tapHoldTimeout) clearTimeout(tapHoldTimeout);
+            tapHoldTimeout = setTimeout(function () {
+                tapHoldFired = true;
+                e.preventDefault();
+                $(e.target).trigger('taphold');
+            }, app.params.tapHoldDelay);
         }
         if (needsFastClickTimeOut) clearTimeout(needsFastClickTimeOut);
         needsFastClick = targetNeedsFastClick(e.target);
@@ -194,15 +207,18 @@ app.initFastClicks = function () {
             trackClick = false;
             targetElement = null;
             isMoved = true;
-        }
-            
-        if (app.params.activeState) {
-            clearTimeout(activeTimeout);
-            removeActive();
+            if (app.params.tapHold) {
+                clearTimeout(tapHoldTimeout);
+            }
+			if (app.params.activeState) {
+				clearTimeout(activeTimeout);
+				removeActive();
+			}
         }
     }
     function handleTouchEnd(e) {
         clearTimeout(activeTimeout);
+        clearTimeout(tapHoldTimeout);
 
         if (!trackClick) {
             if (!activeSelection && needsFastClick) {
@@ -274,6 +290,7 @@ app.initFastClicks = function () {
 
     function handleClick(e) {
         var allowClick = false;
+        
         if (trackClick) {
             targetElement = null;
             trackClick = false;
@@ -283,8 +300,7 @@ app.initFastClicks = function () {
             return true;
         }
         if (!targetElement) {
-            var nodeName = e.target && e.target.nodeName.toLowerCase();
-            if (nodeName && !(nodeName === 'input' || nodeName === 'label' || nodeName === 'textarea' || nodeName === 'select')) {
+            if (!isFormElement(e.target)) {
                 allowClick =  true;
             }
         }
@@ -299,6 +315,9 @@ app.initFastClicks = function () {
         }
         if (!e.cancelable) {
             allowClick =  true;
+        }
+        if (app.params.tapHold && app.params.tapHoldPreventClicks && tapHoldFired) {
+            allowClick = false;
         }
         if (!allowClick) {
             e.stopImmediatePropagation();
@@ -315,7 +334,14 @@ app.initFastClicks = function () {
         }
         needsFastClickTimeOut = setTimeout(function () {
             needsFastClick = false;
-        }, 100);
+        }, (app.device.ios || app.device.androidChrome ? 100 : 400));
+
+        if (app.params.tapHold) {
+            tapHoldTimeout = setTimeout(function () {
+                tapHoldFired = false;
+            }, (app.device.ios || app.device.androidChrome ? 100 : 400));
+        }
+            
         return allowClick;
     }
     if (app.support.touch) {

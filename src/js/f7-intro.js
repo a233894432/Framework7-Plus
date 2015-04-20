@@ -8,7 +8,7 @@ window.Framework7 = function (params) {
     var app = this;
 
     // Version
-    app.version = '1.0.4';
+    app.version = '1.0.5';
 
     // Default Parameters
     app.params = {
@@ -31,6 +31,10 @@ window.Framework7 = function (params) {
         fastClicks: true,
         fastClicksDistanceThreshold: 0,
         fastClicksDelayBetweenClicks: 50,
+        // Tap Hold
+        tapHold: false,
+        tapHoldDelay: 750,
+        tapHoldPreventClicks: true,
         // Active State
         activeState: true,
         activeStateElements: 'a, button, label, span',
