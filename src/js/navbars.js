@@ -4,6 +4,7 @@
 // On Navbar Init Callback
 app.navbarInitCallback = function (view, pageContainer, navbarContainer, navbarInnerContainer) {
     if (!navbarContainer && navbarInnerContainer) navbarContainer = $(navbarInnerContainer).parent('.navbar')[0];
+    if (navbarInnerContainer.f7NavbarInitialized && !view.params.domCache) return;
     var navbarData = {
         container: navbarContainer,
         innerContainer: navbarInnerContainer
@@ -15,19 +16,18 @@ app.navbarInitCallback = function (view, pageContainer, navbarContainer, navbarI
         navbar: navbarData
     };
 
-    if (navbarInnerContainer.f7NavbarInitialized) {
+    if (navbarInnerContainer.f7NavbarInitialized && view.params.domCache) {
         // Reinit Navbar
         app.reinitNavbar(navbarContainer, navbarInnerContainer);
 
         // Plugin hook
-        app.pluginHook('navbarReinit', pageData);
+        app.pluginHook('navbarReinit', eventData);
 
         // Event
-        $(pageData.container).trigger('navbarReinit', eventData);
+        $(navbarInnerContainer).trigger('navbarReinit', eventData);
         return;
     }
     navbarInnerContainer.f7NavbarInitialized = true;
-
     // Before Init
     app.pluginHook('navbarBeforeInit', navbarData, pageData);
     $(navbarInnerContainer).trigger('navbarBeforeInit', eventData);
@@ -57,7 +57,7 @@ app.navbarRemoveCallback = function (view, pageContainer, navbarContainer, navba
 };
 app.initNavbar = function (navbarContainer, navbarInnerContainer) {
     // Init Subnavbar Searchbar
-    app.initSearchbar(navbarInnerContainer);
+    if (app.initSearchbar) app.initSearchbar(navbarInnerContainer);
 };
 app.reinitNavbar = function (navbarContainer, navbarInnerContainer) {
     // Re init navbar methods
@@ -65,15 +65,38 @@ app.reinitNavbar = function (navbarContainer, navbarInnerContainer) {
 app.initNavbarWithCallback = function (navbarContainer) {
     navbarContainer = $(navbarContainer);
     var viewContainer = navbarContainer.parents('.' + app.params.viewClass);
+    var view;
     if (viewContainer.length === 0) return;
-    var view = viewContainer[0].f7View || undefined;
+    if (navbarContainer.parents('.navbar-through').length === 0 && viewContainer.find('.navbar-through').length === 0) return;
+    view = viewContainer[0].f7View || undefined;
+
     navbarContainer.find('.navbar-inner').each(function () {
-        app.navbarInitCallback(view, undefined, navbarContainer[0], this);
+        var navbarInnerContainer = this;
+        var pageContainer;
+        if ($(navbarInnerContainer).attr('data-page')) {
+            // For dom cache
+            pageContainer = viewContainer.find('.page[data-page="' + $(navbarInnerContainer).attr('data-page') + '"]')[0];
+        }
+        if (!pageContainer) {
+            var pages = viewContainer.find('.page');
+            if (pages.length === 1) {
+                pageContainer = pages[0];
+            }
+            else {
+                viewContainer.find('.page').each(function () {
+                    if (this.f7PageData && this.f7PageData.navbarInnerContainer === navbarInnerContainer) {
+                        pageContainer = this;
+                    }
+                });
+            }
+        }
+        app.navbarInitCallback(view, pageContainer, navbarContainer[0], navbarInnerContainer);
     });
 };
 
 // Size Navbars
 app.sizeNavbars = function (viewContainer) {
+    if (app.params.material) return;
     var navbarInner = viewContainer ? $(viewContainer).find('.navbar .navbar-inner:not(.cached)') : $('.navbar .navbar-inner:not(.cached)');
     navbarInner.each(function () {
         var n = $(this);
@@ -87,7 +110,8 @@ app.sizeNavbars = function (viewContainer) {
             leftWidth = noLeft ? 0 : left.outerWidth(true),
             rightWidth = noRight ? 0 : right.outerWidth(true),
             centerWidth = center.outerWidth(true),
-            navbarWidth = n[0].offsetWidth - parseInt(n.css('padding-left'), 10) - parseInt(n.css('padding-right'), 10),
+            navbarStyles = n.styles(),
+            navbarWidth = n[0].offsetWidth - parseInt(navbarStyles.paddingLeft, 10) - parseInt(navbarStyles.paddingRight, 10),
             onLeft = n.hasClass('navbar-on-left'),
             currLeft, diff;
 
@@ -115,11 +139,6 @@ app.sizeNavbars = function (viewContainer) {
         }
         // RTL inverter
         var inverter = app.rtl ? -1 : 1;
-        
-        // Center left
-        var centerLeft = diff;
-        if (app.rtl && noLeft && noRight && center.length > 0) centerLeft = -centerLeft;
-        center.css({left: centerLeft + 'px'});
 
         if (center.hasClass('sliding')) {
             center[0].f7NavbarLeftOffset = -(currLeft + diff) * inverter;
@@ -128,22 +147,22 @@ app.sizeNavbars = function (viewContainer) {
         }
         if (!noLeft && left.hasClass('sliding')) {
             if (app.rtl) {
-                left[0].f7NavbarLeftOffset = -(navbarWidth - left.outerWidth()) / 2 * inverter;
+                left[0].f7NavbarLeftOffset = -(navbarWidth - left[0].offsetWidth) / 2 * inverter;
                 left[0].f7NavbarRightOffset = leftWidth * inverter;
             }
             else {
                 left[0].f7NavbarLeftOffset = -leftWidth;
-                left[0].f7NavbarRightOffset = (navbarWidth - left.outerWidth()) / 2;
+                left[0].f7NavbarRightOffset = (navbarWidth - left[0].offsetWidth) / 2;
             }
             if (onLeft) left.transform('translate3d(' + left[0].f7NavbarLeftOffset + 'px, 0, 0)');
         }
         if (!noRight && right.hasClass('sliding')) {
             if (app.rtl) {
                 right[0].f7NavbarLeftOffset = -rightWidth * inverter;
-                right[0].f7NavbarRightOffset = (navbarWidth - right.outerWidth()) / 2 * inverter;
+                right[0].f7NavbarRightOffset = (navbarWidth - right[0].offsetWidth) / 2 * inverter;
             }
             else {
-                right[0].f7NavbarLeftOffset = -(navbarWidth - right.outerWidth()) / 2;
+                right[0].f7NavbarLeftOffset = -(navbarWidth - right[0].offsetWidth) / 2;
                 right[0].f7NavbarRightOffset = rightWidth;
             }
             if (onLeft) right.transform('translate3d(' + right[0].f7NavbarLeftOffset + 'px, 0, 0)');
@@ -152,6 +171,11 @@ app.sizeNavbars = function (viewContainer) {
             subnavbar[0].f7NavbarLeftOffset = app.rtl ? subnavbar[0].offsetWidth : -subnavbar[0].offsetWidth;
             subnavbar[0].f7NavbarRightOffset = -subnavbar[0].f7NavbarLeftOffset;
         }
+
+        // Center left
+        var centerLeft = diff;
+        if (app.rtl && noLeft && noRight && center.length > 0) centerLeft = -centerLeft;
+        center.css({left: centerLeft + 'px'});
         
     });
 };

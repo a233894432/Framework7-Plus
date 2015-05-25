@@ -129,7 +129,6 @@ app.router = {
 
         if (view && view.params && view.params.preprocess) {
             content = view.params.preprocess(content, url, next);
-            console.log(content);
             if (typeof content !== 'undefined') {
                 next(content);
             }
@@ -473,7 +472,9 @@ app.router._load = function (view, options) {
         oldNavbarInnerContainer: dynamicNavbar ? oldNavbarInner && oldNavbarInner[0] : undefined,
         context: t7_rendered.context,
         query: options.query,
-        fromPage: oldPage && oldPage.length && oldPage[0].f7PageData
+        fromPage: oldPage && oldPage.length && oldPage[0].f7PageData,
+        reload: options.reload,
+        reloadPrevious: options.reloadPrevious
     });
 
     // Navbar init event

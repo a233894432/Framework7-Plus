@@ -305,8 +305,10 @@ Dom7.prototype = {
     },
     outerWidth: function (includeMargins) {
         if (this.length > 0) {
-            if (includeMargins)
-                return this[0].offsetWidth + parseFloat(this.css('margin-right')) + parseFloat(this.css('margin-left'));
+            if (includeMargins) {
+                var styles = this.styles();
+                return this[0].offsetWidth + parseFloat(styles.getPropertyValue('margin-right')) + parseFloat(styles.getPropertyValue('margin-left'));    
+            }
             else
                 return this[0].offsetWidth;
         }
@@ -327,8 +329,10 @@ Dom7.prototype = {
     },
     outerHeight: function (includeMargins) {
         if (this.length > 0) {
-            if (includeMargins)
-                return this[0].offsetHeight + parseFloat(this.css('margin-top')) + parseFloat(this.css('margin-bottom'));
+            if (includeMargins) {
+                var styles = this.styles();
+                return this[0].offsetHeight + parseFloat(styles.getPropertyValue('margin-top')) + parseFloat(styles.getPropertyValue('margin-bottom'));    
+            }
             else
                 return this[0].offsetHeight;
         }
@@ -363,6 +367,11 @@ Dom7.prototype = {
             this[i].style.display = 'block';
         }
         return this;
+    },
+    styles: function () {
+        var i, styles;
+        if (this[0]) return window.getComputedStyle(this[0], null);
+        else return undefined;
     },
     css: function (props, value) {
         var i;

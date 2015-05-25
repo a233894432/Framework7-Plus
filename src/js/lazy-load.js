@@ -33,7 +33,9 @@ app.initImagesLazyLoad = function (pageContainer) {
     if (typeof app.params.imagesLazyLoadPlaceholder === 'string') {
         placeholderSrc = app.params.imagesLazyLoadPlaceholder;
     }
-    if (app.params.imagesLazyLoadPlaceholder !== false) lazyLoadImages.attr('src', placeholderSrc);
+    if (app.params.imagesLazyLoadPlaceholder !== false) lazyLoadImages.each(function(){
+        if ($(this).attr('data-src')) $(this).attr('src', placeholderSrc);
+    });
 
     // load image
     var imagesSequence = [];
@@ -101,6 +103,7 @@ app.initImagesLazyLoad = function (pageContainer) {
     function attachEvents(destroy) {
         var method = destroy ? 'off' : 'on';
         lazyLoadImages[method]('lazy', lazyHandler);
+        pageContainer[method]('lazy', lazyHandler);
         pageContent[method]('lazy', lazyHandler);
         scroller.on('scroll', lazyHandler);
         $(window)[method]('resize', lazyHandler);

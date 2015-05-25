@@ -8,7 +8,7 @@ window.Framework7 = function (params) {
     var app = this;
 
     // Version
-    app.version = '1.0.5';
+    app.version = '1.0.6';
 
     // Default Parameters
     app.params = {
@@ -27,6 +27,7 @@ window.Framework7 = function (params) {
         pushStateRoot: undefined,
         pushStateNoAnimation: false,
         pushStateSeparator: '#!/',
+        pushStatePreventOnLoad: true,
         // Fast clicks
         fastClicks: true,
         fastClicksDistanceThreshold: 0,
@@ -57,6 +58,7 @@ window.Framework7 = function (params) {
         hideToolbarOnPageScroll: false,
         hideTabbarOnPageScroll: false,
         showBarsOnPageScrollEnd: true,
+        showBarsOnPageScrollTop: true,
         // Swipeout
         swipeout: true,
         swipeoutActionsNoFold: false,
