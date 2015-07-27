@@ -138,5 +138,9 @@ Framework7 内置了一个fast click库，它在处理label的prevent default逻
 - list 中的箭头，**已修复**
 - sortable 中的排序icon， **已修复**
 
+**picker 在安卓上超级卡的bug**
+
+- 解决了picker在安卓上滚动的时候超级卡的问题。但是如果你设置了 `rotateEffect: true`，会启用3D效果，依然会非常卡，所以请确保不要把这个设置为 true.
+
 
 **更新到 v1.0.2。因为新版本用 `before` 和 `after` 伪元素实现了一像素的边框，和iconfont背景图标有冲突，所以恢复了svg作为背景图标。**
