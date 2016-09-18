@@ -6,7 +6,7 @@ var Picker = function (params) {
     var defaults = {
         updateValuesOnMomentum: false,
         updateValuesOnTouchmove: true,
-        rotateEffect: false,
+        rotateEffect: false,  //不要设置为true，不然在android上卡出翔
         momentumRatio: 7,
         freeMode: false,
         // Common settings
@@ -193,12 +193,34 @@ var Picker = function (params) {
             if (activeIndex >= col.items.length) activeIndex = col.items.length - 1;
             var previousActiveIndex = col.activeIndex;
             col.activeIndex = activeIndex;
-            col.wrapper.find('.picker-selected, .picker-after-selected, .picker-before-selected').removeClass('picker-selected picker-after-selected picker-before-selected');
+            col.wrapper.find('.picker-selected').removeClass('picker-selected');
 
-            col.items.transition(transition);
+            if (p.params.rotateEffect) col.items.transition(transition);
             var selectedItem = col.items.eq(activeIndex).addClass('picker-selected').transform('');
-            var prevItems = selectedItem.prevAll().addClass('picker-before-selected');
-            var nextItems = selectedItem.nextAll().addClass('picker-after-selected');
+                
+            // Set 3D rotate effect
+            if (p.params.rotateEffect) {
+                var percentage = (translate - (Math.floor((translate - maxTranslate)/itemHeight) * itemHeight + maxTranslate)) / itemHeight;
+                
+                col.items.each(function () {
+                    var item = $(this);
+                    var itemOffsetTop = item.index() * itemHeight;
+                    var translateOffset = maxTranslate - translate;
+                    var itemOffset = itemOffsetTop - translateOffset;
+                    var percentage = itemOffset / itemHeight;
+
+                    var itemsFit = Math.ceil(col.height / itemHeight / 2) + 1;
+                    
+                    var angle = (-18*percentage);
+                    if (angle > 180) angle = 180;
+                    if (angle < -180) angle = -180;
+                    // Far class
+                    if (Math.abs(percentage) > itemsFit) item.addClass('picker-item-far');
+                    else item.removeClass('picker-item-far');
+                    // Set transform
+                    item.transform('translate3d(0, ' + (-translate + maxTranslate) + 'px, ' + (originBug ? -110 : 0) + 'px) rotateX(' + angle + 'deg)');
+                });
+            }
 
             if (valueCallbacks || typeof valueCallbacks === 'undefined') {
                 // Update values
@@ -212,31 +234,6 @@ var Picker = function (params) {
                     p.updateValue();
                 }
             }
-                
-            // Set 3D rotate effect
-            if (!p.params.rotateEffect) {
-                return;
-            }
-            var percentage = (translate - (Math.floor((translate - maxTranslate)/itemHeight) * itemHeight + maxTranslate)) / itemHeight;
-            
-            col.items.each(function () {
-                var item = $(this);
-                var itemOffsetTop = item.index() * itemHeight;
-                var translateOffset = maxTranslate - translate;
-                var itemOffset = itemOffsetTop - translateOffset;
-                var percentage = itemOffset / itemHeight;
-
-                var itemsFit = Math.ceil(col.height / itemHeight / 2) + 1;
-                
-                var angle = (-18*percentage);
-                if (angle > 180) angle = 180;
-                if (angle < -180) angle = -180;
-                // Far class
-                if (Math.abs(percentage) > itemsFit) item.addClass('picker-item-far');
-                else item.removeClass('picker-item-far');
-                // Set transform
-                item.transform('translate3d(0, ' + (-translate + maxTranslate) + 'px, ' + (originBug ? -110 : 0) + 'px) rotateX(' + angle + 'deg)');
-            });
         };
 
         function updateDuringScroll() {
@@ -490,7 +487,10 @@ var Picker = function (params) {
     // Open
     function onPickerClose() {
         p.opened = false;
-        if (p.input && p.input.length > 0) p.input.parents('.page-content').css({'padding-bottom': ''});
+        if (p.input && p.input.length > 0) {
+            p.input.parents('.page-content').css({'padding-bottom': ''});
+            if (app.params.material) p.input.trigger('blur');
+        }
         if (p.params.onClose) p.params.onClose(p);
 
         // Destroy events
@@ -548,6 +548,11 @@ var Picker = function (params) {
             }
             else {
                 if (p.value) p.setValue(p.value, 0);
+            }
+
+            // Material Focus
+            if (p.input && p.input.length > 0 && app.params.material) {
+                p.input.trigger('focus');
             }
         }
 
